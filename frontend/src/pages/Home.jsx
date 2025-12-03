@@ -2,8 +2,11 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MousePointer2, CheckCircle, Star, Users, Trophy, Clock, MapPin } from 'lucide-react';
+import { useCarSelection } from '../context/CarSelectionContext';
 
 const Home = () => {
+    const { openCarModal } = useCarSelection();
+
     return (
         <div className="bg-darker min-h-screen font-sans">
             {/* Hero Section */}
@@ -34,9 +37,12 @@ const Home = () => {
                         </h1>
 
                         <div className="flex flex-col sm:flex-row justify-center gap-6 mt-10">
-                            <Link to="/booking" className="bg-primary hover:bg-blue-600 text-white px-10 py-4 rounded-full font-bold text-sm uppercase tracking-widest transition-all transform hover:scale-105 shadow-lg shadow-primary/30">
+                            <button
+                                onClick={openCarModal}
+                                className="bg-primary hover:bg-blue-600 text-white px-10 py-4 rounded-full font-bold text-sm uppercase tracking-widest transition-all transform hover:scale-105 shadow-lg shadow-primary/30"
+                            >
                                 Get Started Now
-                            </Link>
+                            </button>
                         </div>
                     </motion.div>
                 </div>
