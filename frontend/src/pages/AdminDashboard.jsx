@@ -12,18 +12,24 @@ const CarsPanel = () => {
     const [brands, setBrands] = useState([]);
     const [models, setModels] = useState([]);
     const [loading, setLoading] = useState(false);
+
+    // Brand State
     const [newBrand, setNewBrand] = useState({ name: '', logo: '' });
+    const [editingBrand, setEditingBrand] = useState(null);
+
+    // Model State
     const [newModel, setNewModel] = useState({ name: '', brand: '', type: 'hatchback', image: '' });
+    const [editingModel, setEditingModel] = useState(null);
 
     useEffect(() => {
         fetchBrands();
     }, []);
 
     useEffect(() => {
-        if (activeTab === 'models' && brands.length > 0 && !newModel.brand) {
+        if (activeTab === 'models' && brands.length > 0 && !newModel.brand && !editingModel) {
             setNewModel(prev => ({ ...prev, brand: brands[0]._id }));
         }
-    }, [activeTab, brands]);
+    }, [activeTab, brands, editingModel]);
 
     useEffect(() => {
         if (newModel.brand) {
@@ -57,18 +63,36 @@ const CarsPanel = () => {
         }
     };
 
-    const handleAddBrand = async (e) => {
+    // --- BRAND HANDLERS ---
+    const handleSaveBrand = async (e) => {
         e.preventDefault();
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            await axios.post(`${API_URL}/api/cars/brands`, newBrand);
+            if (editingBrand) {
+                await axios.put(`${API_URL}/api/cars/brands/${editingBrand._id}`, newBrand);
+                alert('Brand updated successfully');
+            } else {
+                await axios.post(`${API_URL}/api/cars/brands`, newBrand);
+                alert('Brand added successfully');
+            }
             setNewBrand({ name: '', logo: '' });
+            setEditingBrand(null);
             fetchBrands();
-            alert('Brand added successfully');
         } catch (err) {
             console.error(err);
-            alert('Failed to add brand');
+            alert('Failed to save brand');
         }
+    };
+
+    const handleEditBrand = (brand) => {
+        setEditingBrand(brand);
+        setNewBrand({ name: brand.name, logo: brand.logo });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleCancelBrandEdit = () => {
+        setEditingBrand(null);
+        setNewBrand({ name: '', logo: '' });
     };
 
     const handleDeleteBrand = async (id) => {
@@ -83,18 +107,50 @@ const CarsPanel = () => {
         }
     };
 
-    const handleAddModel = async (e) => {
+    // --- MODEL HANDLERS ---
+    const handleSaveModel = async (e) => {
         e.preventDefault();
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            await axios.post(`${API_URL}/api/cars/models`, newModel);
-            setNewModel(prev => ({ ...prev, name: '', image: '' }));
+            if (editingModel) {
+                await axios.put(`${API_URL}/api/cars/models/${editingModel._id}`, newModel);
+                alert('Model updated successfully');
+            } else {
+                await axios.post(`${API_URL}/api/cars/models`, newModel);
+                alert('Model added successfully');
+            }
+
+            // Refresh models
             fetchModels(newModel.brand);
-            alert('Model added successfully');
+
+            // Reset form but keep brand selected if adding new
+            if (editingModel) {
+                setEditingModel(null);
+                setNewModel({ name: '', brand: newModel.brand, type: 'hatchback', image: '' });
+            } else {
+                setNewModel(prev => ({ ...prev, name: '', image: '' }));
+            }
         } catch (err) {
             console.error(err);
-            alert('Failed to add model');
+            alert('Failed to save model');
         }
+    };
+
+    const handleEditModel = (model) => {
+        setEditingModel(model);
+        setNewModel({
+            name: model.name,
+            brand: model.brand,
+            type: model.type,
+            image: model.image || ''
+        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    };
+
+    const handleCancelModelEdit = () => {
+        setEditingModel(null);
+        // Reset to default state, keeping current brand if possible
+        setNewModel({ name: '', brand: newModel.brand || (brands[0]?._id || ''), type: 'hatchback', image: '' });
     };
 
     const handleDeleteModel = async (id, brandId) => {
@@ -102,12 +158,8 @@ const CarsPanel = () => {
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
             await axios.delete(`${API_URL}/api/cars/models/${id}`);
-            // Refresh models list using the brandId of the deleted model
-            if (brandId) {
-                fetchModels(brandId);
-            } else if (newModel.brand) {
-                fetchModels(newModel.brand);
-            }
+            if (brandId) fetchModels(brandId);
+            else if (newModel.brand) fetchModels(newModel.brand);
         } catch (err) {
             console.error(err);
             alert('Failed to delete model');
@@ -135,10 +187,15 @@ const CarsPanel = () => {
 
             {activeTab === 'brands' ? (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Add Brand Form */}
+                    {/* Add/Edit Brand Form */}
                     <div className="bg-darker p-6 rounded-2xl border border-gray-700 h-fit">
-                        <h3 className="text-xl font-bold mb-4">Add New Brand</h3>
-                        <form onSubmit={handleAddBrand} className="space-y-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-bold">{editingBrand ? 'Edit Brand' : 'Add New Brand'}</h3>
+                            {editingBrand && (
+                                <button onClick={handleCancelBrandEdit} className="text-sm text-gray-400 hover:text-white">Cancel</button>
+                            )}
+                        </div>
+                        <form onSubmit={handleSaveBrand} className="space-y-4">
                             <div>
                                 <label className="block text-gray-400 text-sm mb-2">Brand Name</label>
                                 <input
@@ -158,7 +215,7 @@ const CarsPanel = () => {
                                 />
                             </div>
                             <button type="submit" className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-colors">
-                                Add Brand
+                                {editingBrand ? 'Update Brand' : 'Add Brand'}
                             </button>
                         </form>
                     </div>
@@ -171,22 +228,35 @@ const CarsPanel = () => {
                                     <img src={brand.logo} alt={brand.name} className="w-12 h-12 object-contain bg-white rounded-lg p-1" />
                                     <span className="font-bold text-lg">{brand.name}</span>
                                 </div>
-                                <button
-                                    onClick={() => handleDeleteBrand(brand._id)}
-                                    className="text-red-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded-lg transition-colors"
-                                >
-                                    <Trash2 className="h-5 w-5" />
-                                </button>
+                                <div className="flex space-x-2">
+                                    <button
+                                        onClick={() => handleEditBrand(brand)}
+                                        className="text-blue-500 hover:text-blue-400 p-2 hover:bg-blue-500/10 rounded-lg transition-colors"
+                                    >
+                                        <Edit className="h-5 w-5" />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDeleteBrand(brand._id)}
+                                        className="text-red-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded-lg transition-colors"
+                                    >
+                                        <Trash2 className="h-5 w-5" />
+                                    </button>
+                                </div>
                             </div>
                         ))}
                     </div>
                 </div>
             ) : (
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                    {/* Add Model Form */}
+                    {/* Add/Edit Model Form */}
                     <div className="bg-darker p-6 rounded-2xl border border-gray-700 h-fit">
-                        <h3 className="text-xl font-bold mb-4">Add New Model</h3>
-                        <form onSubmit={handleAddModel} className="space-y-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xl font-bold">{editingModel ? 'Edit Model' : 'Add New Model'}</h3>
+                            {editingModel && (
+                                <button onClick={handleCancelModelEdit} className="text-sm text-gray-400 hover:text-white">Cancel</button>
+                            )}
+                        </div>
+                        <form onSubmit={handleSaveModel} className="space-y-4">
                             <div>
                                 <label className="block text-gray-400 text-sm mb-2">Select Brand</label>
                                 <select
@@ -194,6 +264,7 @@ const CarsPanel = () => {
                                     onChange={(e) => setNewModel({ ...newModel, brand: e.target.value })}
                                     className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
                                     required
+                                    disabled={!!editingModel} // Disable brand change during edit for simplicity, or enable if backend supports it
                                 >
                                     {brands.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
                                 </select>
@@ -220,8 +291,16 @@ const CarsPanel = () => {
                                     <option value="luxury">Luxury</option>
                                 </select>
                             </div>
+                            <div>
+                                <label className="block text-gray-400 text-sm mb-2">Image URL</label>
+                                <input
+                                    value={newModel.image}
+                                    onChange={(e) => setNewModel({ ...newModel, image: e.target.value })}
+                                    className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                                />
+                            </div>
                             <button type="submit" className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-colors">
-                                Add Model
+                                {editingModel ? 'Update Model' : 'Add Model'}
                             </button>
                         </form>
                     </div>
@@ -234,16 +313,27 @@ const CarsPanel = () => {
                         {models.length > 0 ? (
                             models.map(model => (
                                 <div key={model._id} className="bg-darker p-4 rounded-xl border border-gray-700 flex items-center justify-between">
-                                    <div>
-                                        <span className="font-bold text-lg block">{model.name}</span>
-                                        <span className="text-xs text-primary uppercase font-bold">{model.type}</span>
+                                    <div className="flex items-center space-x-4">
+                                        {model.image && <img src={model.image} alt={model.name} className="w-16 h-10 object-cover rounded" />}
+                                        <div>
+                                            <span className="font-bold text-lg block">{model.name}</span>
+                                            <span className="text-xs text-primary uppercase font-bold">{model.type}</span>
+                                        </div>
                                     </div>
-                                    <button
-                                        onClick={() => handleDeleteModel(model._id, model.brand)}
-                                        className="text-red-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded-lg transition-colors"
-                                    >
-                                        <Trash2 className="h-5 w-5" />
-                                    </button>
+                                    <div className="flex space-x-2">
+                                        <button
+                                            onClick={() => handleEditModel(model)}
+                                            className="text-blue-500 hover:text-blue-400 p-2 hover:bg-blue-500/10 rounded-lg transition-colors"
+                                        >
+                                            <Edit className="h-5 w-5" />
+                                        </button>
+                                        <button
+                                            onClick={() => handleDeleteModel(model._id, model.brand)}
+                                            className="text-red-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded-lg transition-colors"
+                                        >
+                                            <Trash2 className="h-5 w-5" />
+                                        </button>
+                                    </div>
                                 </div>
                             ))
                         ) : (

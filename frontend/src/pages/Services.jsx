@@ -10,17 +10,18 @@ const Services = () => {
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const { city } = useLocationContext();
-    const { selectedCar, openCarModal } = useCarSelection();
+    const { selectedModel, openCarModal } = useCarSelection(); // Use selectedModel
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!selectedCar) {
+        // Only open if NO model is selected
+        if (!selectedModel) {
             const timer = setTimeout(() => {
                 openCarModal();
             }, 500);
             return () => clearTimeout(timer);
         }
-    }, [selectedCar, openCarModal]);
+    }, [selectedModel, openCarModal]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -42,15 +43,15 @@ const Services = () => {
     }, [city]);
 
     const getDynamicPrice = (service) => {
-        if (!selectedCar || !selectedCar.segment) return service.basePrice;
-        if (service.pricingRules && service.pricingRules[selectedCar.segment]) {
-            return service.pricingRules[selectedCar.segment];
+        if (!selectedModel || !selectedModel.segment) return service.basePrice;
+        if (service.pricingRules && service.pricingRules[selectedModel.segment]) {
+            return service.pricingRules[selectedModel.segment];
         }
         return service.basePrice;
     };
 
     const handleBookNow = (service) => {
-        if (!selectedCar) {
+        if (!selectedModel) {
             openCarModal();
         } else {
             const finalPrice = getDynamicPrice(service);
@@ -81,15 +82,15 @@ const Services = () => {
                         <p className="text-gray-400 max-w-2xl mx-auto text-lg font-light">
                             Showing services available in <span className="text-primary font-bold">{city || 'All Locations'}</span>
                         </p>
-                        {selectedCar && (
+                        {selectedModel && (
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="mt-6 inline-block bg-primary/20 border border-primary/50 rounded-full px-6 py-2"
                             >
                                 <span className="text-white">
-                                    Pricing for: <span className="font-bold text-primary uppercase">{selectedCar.brand} {selectedCar.name}</span>
-                                    <span className="text-gray-400 text-xs ml-2">({selectedCar.segment})</span>
+                                    Pricing for: <span className="font-bold text-primary uppercase">{selectedModel.name}</span>
+                                    <span className="text-gray-400 text-xs ml-2">({selectedModel.segment})</span>
                                 </span>
                             </motion.div>
                         )}
