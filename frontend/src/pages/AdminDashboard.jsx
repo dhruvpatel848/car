@@ -3,104 +3,630 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import {
     LayoutDashboard, ShoppingBag, Settings, LogOut, Download, Plus, Trash2, Edit, Eye, X,
-    CreditCard, Banknote, MapPin, Menu, Bell, Search, ChevronDown, User, Calendar, Check, Clock
+    CreditCard, Banknote, MapPin, Menu, Bell, Search, ChevronDown, User, Calendar, Check, Clock, DollarSign, Car
 } from 'lucide-react';
 
-const AdminDashboard = () => {
-    const [activeTab, setActiveTab] = useState('dashboard');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-    const navigate = useNavigate();
+// --- CARS PANEL ---
+const CarsPanel = () => {
+    const [activeTab, setActiveTab] = useState('brands'); // 'brands' or 'models'
+    const [brands, setBrands] = useState([]);
+    const [models, setModels] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [newBrand, setNewBrand] = useState({ name: '', logo: '' });
+    const [newModel, setNewModel] = useState({ name: '', brand: '', type: 'hatchback', image: '' });
 
     useEffect(() => {
-        const token = localStorage.getItem('adminToken');
-        if (!token) navigate('/admin/login');
+        fetchBrands();
     }, []);
 
-    const handleLogout = () => {
-        localStorage.removeItem('adminToken');
-        navigate('/admin/login');
+    useEffect(() => {
+        if (activeTab === 'models' && brands.length > 0 && !newModel.brand) {
+            setNewModel(prev => ({ ...prev, brand: brands[0]._id }));
+        }
+    }, [activeTab, brands]);
+
+    useEffect(() => {
+        if (newModel.brand) {
+            fetchModels(newModel.brand);
+        }
+    }, [newModel.brand]);
+
+    const fetchBrands = async () => {
+        try {
+            setLoading(true);
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const res = await axios.get(`${API_URL}/api/cars/brands`);
+            setBrands(res.data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const fetchModels = async (brandId) => {
+        try {
+            setLoading(true);
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const res = await axios.get(`${API_URL}/api/cars/models/${brandId}`);
+            setModels(res.data);
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleAddBrand = async (e) => {
+        e.preventDefault();
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            await axios.post(`${API_URL}/api/cars/brands`, newBrand);
+            setNewBrand({ name: '', logo: '' });
+            fetchBrands();
+            alert('Brand added successfully');
+        } catch (err) {
+            console.error(err);
+            alert('Failed to add brand');
+        }
+    };
+
+    const handleDeleteBrand = async (id) => {
+        if (!window.confirm('Are you sure? This will delete all associated models.')) return;
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            await axios.delete(`${API_URL}/api/cars/brands/${id}`);
+            fetchBrands();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to delete brand');
+        }
+    };
+
+    const handleAddModel = async (e) => {
+        e.preventDefault();
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            await axios.post(`${API_URL}/api/cars/models`, newModel);
+            setNewModel(prev => ({ ...prev, name: '', image: '' }));
+            fetchModels(newModel.brand);
+            alert('Model added successfully');
+        } catch (err) {
+            console.error(err);
+            alert('Failed to add model');
+        }
+    };
+
+    const handleDeleteModel = async (id, brandId) => {
+        if (!window.confirm('Are you sure?')) return;
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            await axios.delete(`${API_URL}/api/cars/models/${id}`);
+            // Refresh models list using the brandId of the deleted model
+            if (brandId) {
+                fetchModels(brandId);
+            } else if (newModel.brand) {
+                fetchModels(newModel.brand);
+            }
+        } catch (err) {
+            console.error(err);
+            alert('Failed to delete model');
+        }
     };
 
     return (
-        <div className="min-h-screen bg-darker flex font-sans text-white">
-            {/* Sidebar */}
-            <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-dark border-r border-gray-800 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0`}>
-                <div className="h-full flex flex-col">
-                    {/* Logo Area */}
-                    <div className="p-6 border-b border-gray-800 flex items-center justify-center">
-                        <img src="/logo.png" alt="GLO CAR" className="h-12 w-auto" />
+        <div>
+            <h2 className="text-3xl font-bold mb-6 font-heading">Car Management</h2>
+
+            <div className="flex space-x-4 mb-8 border-b border-gray-700 pb-4">
+                <button
+                    onClick={() => setActiveTab('brands')}
+                    className={`px-4 py-2 rounded-lg font-bold transition-colors ${activeTab === 'brands' ? 'bg-primary text-white' : 'text-gray-400 hover:text-white'}`}
+                >
+                    Brands
+                </button>
+                <button
+                    onClick={() => setActiveTab('models')}
+                    className={`px-4 py-2 rounded-lg font-bold transition-colors ${activeTab === 'models' ? 'bg-primary text-white' : 'text-gray-400 hover:text-white'}`}
+                >
+                    Models
+                </button>
+            </div>
+
+            {activeTab === 'brands' ? (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Add Brand Form */}
+                    <div className="bg-darker p-6 rounded-2xl border border-gray-700 h-fit">
+                        <h3 className="text-xl font-bold mb-4">Add New Brand</h3>
+                        <form onSubmit={handleAddBrand} className="space-y-4">
+                            <div>
+                                <label className="block text-gray-400 text-sm mb-2">Brand Name</label>
+                                <input
+                                    value={newBrand.name}
+                                    onChange={(e) => setNewBrand({ ...newBrand, name: e.target.value })}
+                                    className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-400 text-sm mb-2">Logo URL</label>
+                                <input
+                                    value={newBrand.logo}
+                                    onChange={(e) => setNewBrand({ ...newBrand, logo: e.target.value })}
+                                    className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                                    required
+                                />
+                            </div>
+                            <button type="submit" className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-colors">
+                                Add Brand
+                            </button>
+                        </form>
                     </div>
 
-                    {/* Navigation */}
-                    <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-                        <SidebarItem icon={LayoutDashboard} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
-                        <SidebarItem icon={ShoppingBag} label="Orders" active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} />
-                        <SidebarItem icon={Settings} label="Services" active={activeTab === 'services'} onClick={() => setActiveTab('services')} />
-                        <SidebarItem icon={MapPin} label="Locations" active={activeTab === 'locations'} onClick={() => setActiveTab('locations')} />
-                    </nav>
-
-                    {/* User Profile & Logout */}
-                    <div className="p-4 border-t border-gray-800">
-                        <div className="flex items-center mb-4 px-2">
-                            <img src="/admin_pfp.png" alt="Admin" className="w-10 h-10 rounded-full object-cover border-2 border-primary" />
-                            <div className="ml-3">
-                                <p className="text-sm font-medium text-white">Admin User</p>
-                                <p className="text-xs text-gray-500">Administrator</p>
+                    {/* Brands List */}
+                    <div className="space-y-4">
+                        {brands.map(brand => (
+                            <div key={brand._id} className="bg-darker p-4 rounded-xl border border-gray-700 flex items-center justify-between">
+                                <div className="flex items-center space-x-4">
+                                    <img src={brand.logo} alt={brand.name} className="w-12 h-12 object-contain bg-white rounded-lg p-1" />
+                                    <span className="font-bold text-lg">{brand.name}</span>
+                                </div>
+                                <button
+                                    onClick={() => handleDeleteBrand(brand._id)}
+                                    className="text-red-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded-lg transition-colors"
+                                >
+                                    <Trash2 className="h-5 w-5" />
+                                </button>
                             </div>
-                        </div>
-                        <button
-                            onClick={handleLogout}
-                            className="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
-                        >
-                            <LogOut className="h-5 w-5" />
-                            <span>Logout</span>
-                        </button>
+                        ))}
                     </div>
                 </div>
-            </aside>
-
-            {/* Main Content */}
-            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-                {/* Top Header */}
-                <header className="bg-dark border-b border-gray-800 h-16 flex items-center justify-between px-6">
-                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden text-gray-400 hover:text-white">
-                        <Menu className="h-6 w-6" />
-                    </button>
-
-                    <div className="flex items-center space-x-4 ml-auto">
-                        <button className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-gray-800">
-                            <Bell className="h-5 w-5" />
-                        </button>
-                        <img src="/admin_pfp.png" alt="Admin" className="h-8 w-8 rounded-full object-cover border border-primary" />
+            ) : (
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Add Model Form */}
+                    <div className="bg-darker p-6 rounded-2xl border border-gray-700 h-fit">
+                        <h3 className="text-xl font-bold mb-4">Add New Model</h3>
+                        <form onSubmit={handleAddModel} className="space-y-4">
+                            <div>
+                                <label className="block text-gray-400 text-sm mb-2">Select Brand</label>
+                                <select
+                                    value={newModel.brand}
+                                    onChange={(e) => setNewModel({ ...newModel, brand: e.target.value })}
+                                    className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                                    required
+                                >
+                                    {brands.map(b => <option key={b._id} value={b._id}>{b.name}</option>)}
+                                </select>
+                            </div>
+                            <div>
+                                <label className="block text-gray-400 text-sm mb-2">Model Name</label>
+                                <input
+                                    value={newModel.name}
+                                    onChange={(e) => setNewModel({ ...newModel, name: e.target.value })}
+                                    className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                                    required
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-gray-400 text-sm mb-2">Car Type</label>
+                                <select
+                                    value={newModel.type}
+                                    onChange={(e) => setNewModel({ ...newModel, type: e.target.value })}
+                                    className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                                >
+                                    <option value="hatchback">Hatchback</option>
+                                    <option value="sedan">Sedan</option>
+                                    <option value="suv">SUV</option>
+                                    <option value="luxury">Luxury</option>
+                                </select>
+                            </div>
+                            <button type="submit" className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-colors">
+                                Add Model
+                            </button>
+                        </form>
                     </div>
-                </header>
 
-                {/* Content Area */}
-                <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-darker">
-                    {activeTab === 'dashboard' && <DashboardOverview setActiveTab={setActiveTab} />}
-                    {activeTab === 'orders' && <OrdersPanel />}
-                    {activeTab === 'services' && <ServicesPanel />}
-                    {activeTab === 'locations' && <LocationsPanel />}
-                </main>
+                    {/* Models List */}
+                    <div className="space-y-4">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="font-bold text-gray-400">Models for selected brand</h3>
+                        </div>
+                        {models.length > 0 ? (
+                            models.map(model => (
+                                <div key={model._id} className="bg-darker p-4 rounded-xl border border-gray-700 flex items-center justify-between">
+                                    <div>
+                                        <span className="font-bold text-lg block">{model.name}</span>
+                                        <span className="text-xs text-primary uppercase font-bold">{model.type}</span>
+                                    </div>
+                                    <button
+                                        onClick={() => handleDeleteModel(model._id, model.brand)}
+                                        className="text-red-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded-lg transition-colors"
+                                    >
+                                        <Trash2 className="h-5 w-5" />
+                                    </button>
+                                </div>
+                            ))
+                        ) : (
+                            <p className="text-gray-500 text-center py-4">No models found for this brand.</p>
+                        )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// --- PRICING PANEL ---
+const PricingPanel = () => {
+    const [settings, setSettings] = useState({
+        charge_hatchback: 0,
+        charge_sedan: 0,
+        charge_suv: 0,
+        charge_luxury: 0
+    });
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        fetchSettings();
+    }, []);
+
+    const fetchSettings = async () => {
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const res = await axios.get(`${API_URL}/api/settings`);
+            if (res.data) {
+                setSettings(res.data);
+            }
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleChange = (e) => {
+        setSettings({ ...settings, [e.target.name]: parseInt(e.target.value) || 0 });
+    };
+
+    const handleSave = async (e) => {
+        e.preventDefault();
+        setLoading(true);
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            await axios.put(`${API_URL}/api/settings`, settings);
+            alert('Pricing updated successfully');
+        } catch (err) {
+            console.error(err);
+            alert('Failed to update pricing');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    return (
+        <div>
+            <h2 className="text-3xl font-bold mb-6 font-heading">Dynamic Pricing Configuration</h2>
+            <div className="bg-darker p-8 rounded-2xl border border-gray-700 max-w-2xl">
+                <p className="text-gray-400 mb-6">Set additional charges for different car types. These will be added to the base service price.</p>
+                <form onSubmit={handleSave} className="space-y-6">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label className="block text-gray-400 text-sm mb-2">Hatchback Extra Charge (₹)</label>
+                            <input
+                                type="number"
+                                name="charge_hatchback"
+                                value={settings.charge_hatchback}
+                                onChange={handleChange}
+                                className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-400 text-sm mb-2">Sedan Extra Charge (₹)</label>
+                            <input
+                                type="number"
+                                name="charge_sedan"
+                                value={settings.charge_sedan}
+                                onChange={handleChange}
+                                className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-400 text-sm mb-2">SUV Extra Charge (₹)</label>
+                            <input
+                                type="number"
+                                name="charge_suv"
+                                value={settings.charge_suv}
+                                onChange={handleChange}
+                                className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-gray-400 text-sm mb-2">Luxury Extra Charge (₹)</label>
+                            <input
+                                type="number"
+                                name="charge_luxury"
+                                value={settings.charge_luxury}
+                                onChange={handleChange}
+                                className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                            />
+                        </div>
+                    </div>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-primary hover:bg-blue-600 text-white py-4 rounded-xl font-bold transition-colors flex items-center justify-center"
+                    >
+                        {loading ? 'Saving...' : 'Save Changes'}
+                    </button>
+                </form>
             </div>
         </div>
     );
 };
 
-const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
-    <button
-        onClick={onClick}
-        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${active
-            ? 'bg-primary text-white shadow-lg shadow-primary/20'
-            : 'text-gray-400 hover:bg-gray-800 hover:text-white'
-            }`}
-    >
-        <Icon className="h-5 w-5" />
-        <span className="font-medium">{label}</span>
-    </button>
-);
+// --- SERVICES PANEL ---
+const ServicesPanel = () => {
+    const [services, setServices] = useState([]);
+    const [locations, setLocations] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingService, setEditingService] = useState(null);
+    const [formData, setFormData] = useState({
+        title: '',
+        description: '',
+        price: '',
+        duration: '',
+        features: '',
+        image: '',
+        availableLocations: []
+    });
 
-const DashboardOverview = ({ setActiveTab }) => {
+    useEffect(() => {
+        fetchServices();
+        fetchLocations();
+    }, []);
+
+    const fetchServices = async () => {
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const res = await axios.get(`${API_URL}/api/services`);
+            setServices(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const fetchLocations = async () => {
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const res = await axios.get(`${API_URL}/api/locations`);
+            setLocations(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const payload = {
+                ...formData,
+                features: formData.features.split(',').map(f => f.trim()),
+                price: Number(formData.price)
+            };
+
+            if (editingService) {
+                await axios.put(`${API_URL}/api/services/${editingService._id}`, payload);
+            } else {
+                await axios.post(`${API_URL}/api/services`, payload);
+            }
+            setIsModalOpen(false);
+            setEditingService(null);
+            setFormData({ title: '', description: '', price: '', duration: '', features: '', image: '', availableLocations: [] });
+            fetchServices();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to save service');
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure?')) return;
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            await axios.delete(`${API_URL}/api/services/${id}`);
+            fetchServices();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleEdit = (service) => {
+        setEditingService(service);
+        setFormData({
+            title: service.title,
+            description: service.description,
+            price: service.price,
+            duration: service.duration,
+            features: service.features.join(', '),
+            image: service.image,
+            availableLocations: service.availableLocations.map(loc => typeof loc === 'object' ? loc.city : loc)
+        });
+        setIsModalOpen(true);
+    };
+
+    const toggleLocation = (city) => {
+        setFormData(prev => {
+            const current = prev.availableLocations;
+            if (current.includes(city)) {
+                return { ...prev, availableLocations: current.filter(c => c !== city) };
+            } else {
+                return { ...prev, availableLocations: [...current, city] };
+            }
+        });
+    };
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-bold text-white font-heading">Services</h2>
+                <button
+                    onClick={() => { setEditingService(null); setFormData({ title: '', description: '', price: '', duration: '', features: '', image: '', availableLocations: [] }); setIsModalOpen(true); }}
+                    className="flex items-center bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                    <Plus className="h-5 w-5 mr-2" /> Add Service
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {services.map(service => (
+                    <div key={service._id} className="bg-dark rounded-2xl border border-gray-800 overflow-hidden group hover:border-primary/50 transition-all">
+                        <div className="h-48 overflow-hidden relative">
+                            <img src={service.image} alt={service.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
+                            <div className="absolute top-2 right-2 flex space-x-2">
+                                <button onClick={() => handleEdit(service)} className="p-2 bg-black/50 backdrop-blur-sm rounded-full text-white hover:bg-primary transition-colors"><Edit className="h-4 w-4" /></button>
+                                <button onClick={() => handleDelete(service._id)} className="p-2 bg-black/50 backdrop-blur-sm rounded-full text-white hover:bg-red-500 transition-colors"><Trash2 className="h-4 w-4" /></button>
+                            </div>
+                        </div>
+                        <div className="p-6">
+                            <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
+                            <p className="text-gray-400 text-sm mb-4 line-clamp-2">{service.description}</p>
+                            <div className="flex justify-between items-center">
+                                <span className="text-primary font-bold text-lg">₹{service.price}</span>
+                                <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">{service.duration}</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {isModalOpen && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm">
+                    <div className="bg-dark border border-gray-800 rounded-2xl p-8 w-full max-w-2xl relative shadow-2xl max-h-[90vh] overflow-y-auto">
+                        <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white"><X className="h-6 w-6" /></button>
+                        <h3 className="text-2xl font-bold text-white mb-6 font-heading">{editingService ? 'Edit Service' : 'Add New Service'}</h3>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <input placeholder="Title" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
+                                <input placeholder="Price" type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <input placeholder="Duration (e.g. 45 mins)" value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
+                                <input placeholder="Image URL" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
+                            </div>
+                            <textarea placeholder="Description" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" rows="3" required />
+                            <input placeholder="Features (comma separated)" value={formData.features} onChange={e => setFormData({ ...formData, features: e.target.value })} className="w-full bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
+
+                            <div>
+                                <label className="block text-gray-400 text-sm mb-2">Available Locations</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {locations.map(loc => (
+                                        <button
+                                            key={loc._id}
+                                            type="button"
+                                            onClick={() => toggleLocation(loc.city)}
+                                            className={`px-3 py-1 rounded-full text-sm border transition-colors ${formData.availableLocations.includes(loc.city) ? 'bg-primary border-primary text-white' : 'bg-darker border-gray-700 text-gray-400 hover:border-gray-500'}`}
+                                        >
+                                            {loc.city}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button type="submit" className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-colors">
+                                {editingService ? 'Update Service' : 'Create Service'}
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// --- LOCATIONS PANEL ---
+const LocationsPanel = () => {
+    const [locations, setLocations] = useState([]);
+    const [newCity, setNewCity] = useState('');
+
+    useEffect(() => {
+        fetchLocations();
+    }, []);
+
+    const fetchLocations = async () => {
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const res = await axios.get(`${API_URL}/api/locations`);
+            setLocations(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleAdd = async (e) => {
+        e.preventDefault();
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            await axios.post(`${API_URL}/api/locations`, { city: newCity });
+            setNewCity('');
+            fetchLocations();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to add location');
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure?')) return;
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            await axios.delete(`${API_URL}/api/locations/${id}`);
+            fetchLocations();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    return (
+        <div>
+            <h2 className="text-2xl font-bold text-white font-heading mb-8">Locations</h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div className="bg-dark rounded-2xl border border-gray-800 p-6 h-fit">
+                    <h3 className="text-lg font-bold text-white mb-4">Add New Location</h3>
+                    <form onSubmit={handleAdd} className="flex gap-4">
+                        <input
+                            value={newCity}
+                            onChange={(e) => setNewCity(e.target.value)}
+                            placeholder="City Name"
+                            className="flex-1 bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                            required
+                        />
+                        <button type="submit" className="bg-primary hover:bg-blue-600 text-white px-6 rounded-xl font-bold transition-colors">
+                            Add
+                        </button>
+                    </form>
+                </div>
+
+                <div className="space-y-4">
+                    {locations.map(loc => (
+                        <div key={loc._id} className="bg-dark rounded-xl border border-gray-800 p-4 flex justify-between items-center">
+                            <div className="flex items-center">
+                                <MapPin className="h-5 w-5 text-primary mr-3" />
+                                <span className="font-medium text-white">{loc.city}</span>
+                            </div>
+                            <button onClick={() => handleDelete(loc._id)} className="text-red-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded-lg transition-colors">
+                                <Trash2 className="h-5 w-5" />
+                            </button>
+                        </div>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+};
+
+// --- MAIN DASHBOARD COMPONENT ---
+const AdminDashboard = () => {
+    const [activeTab, setActiveTab] = useState('dashboard');
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
     const [stats, setStats] = useState({
         totalBookings: 0,
         totalRevenue: 0,
@@ -109,8 +635,11 @@ const DashboardOverview = ({ setActiveTab }) => {
         recentBookings: [],
         topLocations: []
     });
+    const navigate = useNavigate();
 
     useEffect(() => {
+        const token = localStorage.getItem('adminToken');
+        if (!token) navigate('/admin/login');
         fetchStats();
     }, []);
 
@@ -145,75 +674,155 @@ const DashboardOverview = ({ setActiveTab }) => {
         }
     };
 
+    const handleLogout = () => {
+        localStorage.removeItem('adminToken');
+        navigate('/admin/login');
+    };
+
     return (
-        <div className="space-y-6">
-            <div className="flex justify-between items-center">
-                <h2 className="text-2xl font-bold text-white font-heading">Dashboard</h2>
-                <div className="text-sm text-gray-400">Welcome back, Admin User</div>
-            </div>
-
-            {/* Stats Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                <StatCard title="Total Bookings" value={stats.totalBookings} icon={Calendar} color="bg-blue-500" />
-                <StatCard title="Total Revenue" value={`₹${stats.totalRevenue}`} icon={Banknote} color="bg-green-500" />
-                <StatCard title="Confirmed" value={stats.confirmed} icon={Check} color="bg-purple-500" />
-                <StatCard title="Pending" value={stats.pending} icon={Clock} color="bg-orange-500" />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Recent Bookings */}
-                <div className="bg-dark rounded-2xl border border-gray-800 p-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h3 className="font-bold text-lg text-white">Recent Bookings</h3>
-                        <button onClick={() => setActiveTab('orders')} className="text-sm text-primary hover:underline">View All</button>
+        <div className="min-h-screen bg-darker flex font-sans text-white">
+            {/* Sidebar */}
+            <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-dark border-r border-gray-800 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0`}>
+                <div className="h-full flex flex-col">
+                    {/* Logo Area */}
+                    <div className="p-6 border-b border-gray-800 flex items-center justify-center">
+                        <img src="/logo.png" alt="GLO CAR" className="h-12 w-auto" />
                     </div>
-                    <div className="space-y-4">
-                        {stats.recentBookings.length === 0 ? (
-                            <p className="text-gray-500 text-sm">No bookings yet.</p>
-                        ) : (
-                            stats.recentBookings.map(order => (
-                                <div key={order._id} className="flex justify-between items-center p-3 bg-darker rounded-xl border border-gray-800/50">
-                                    <div>
-                                        <p className="font-medium text-white text-sm">{order.customerName}</p>
-                                        <p className="text-xs text-gray-500">{order.serviceName}</p>
-                                    </div>
-                                    <span className={`px-2 py-1 rounded text-[10px] uppercase ${order.status === 'Completed' ? 'bg-green-500/10 text-green-500' :
-                                        order.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-500' :
-                                            'bg-blue-500/10 text-blue-500'
-                                        }`}>
-                                        {order.status}
-                                    </span>
-                                </div>
-                            ))
-                        )}
+
+                    {/* Navigation */}
+                    <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
+                        <SidebarItem icon={LayoutDashboard} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
+                        <SidebarItem icon={ShoppingBag} label="Orders" active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} />
+                        <SidebarItem icon={Settings} label="Services" active={activeTab === 'services'} onClick={() => setActiveTab('services')} />
+                        <SidebarItem icon={MapPin} label="Locations" active={activeTab === 'locations'} onClick={() => setActiveTab('locations')} />
+                        <SidebarItem icon={Banknote} label="Pricing" active={activeTab === 'pricing'} onClick={() => setActiveTab('pricing')} />
+                        <SidebarItem icon={Car} label="Cars" active={activeTab === 'cars'} onClick={() => setActiveTab('cars')} />
+                    </nav>
+
+                    {/* User Profile & Logout */}
+                    <div className="p-4 border-t border-gray-800">
+                        <div className="flex items-center mb-4 px-2">
+                            <img src="/admin_pfp.png" alt="Admin" className="w-10 h-10 rounded-full object-cover border-2 border-primary" />
+                            <div className="ml-3">
+                                <p className="text-sm font-medium text-white">Admin User</p>
+                                <p className="text-xs text-gray-500">Administrator</p>
+                            </div>
+                        </div>
+                        <button
+                            onClick={handleLogout}
+                            className="w-full flex items-center space-x-3 px-4 py-2 rounded-lg text-red-400 hover:bg-red-500/10 transition-colors"
+                        >
+                            <LogOut className="h-5 w-5" />
+                            <span>Logout</span>
+                        </button>
                     </div>
                 </div>
+            </aside>
 
-                {/* Top Locations */}
-                <div className="bg-dark rounded-2xl border border-gray-800 p-6">
-                    <h3 className="font-bold text-lg text-white mb-6">Top Locations</h3>
-                    <div className="space-y-4">
-                        {stats.topLocations.length === 0 ? (
-                            <p className="text-gray-500 text-sm">No location data yet.</p>
-                        ) : (
-                            stats.topLocations.map((loc, idx) => (
-                                <div key={idx} className="flex justify-between items-center p-4 bg-darker rounded-xl border border-gray-800/50">
-                                    <div className="flex items-center">
-                                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary mr-3">
-                                            <MapPin className="h-4 w-4" />
-                                        </div>
-                                        <span className="font-medium text-white">{loc.city}</span>
-                                    </div>
-                                    <span className="text-xl font-bold text-white">{loc.count}</span>
-                                </div>
-                            ))
-                        )}
+            {/* Main Content */}
+            <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+                {/* Top Header */}
+                <header className="bg-dark border-b border-gray-800 h-16 flex items-center justify-between px-6">
+                    <button onClick={() => setIsSidebarOpen(!isSidebarOpen)} className="md:hidden text-gray-400 hover:text-white">
+                        <Menu className="h-6 w-6" />
+                    </button>
+
+                    <div className="flex items-center space-x-4 ml-auto">
+                        <button className="p-2 text-gray-400 hover:text-white rounded-full hover:bg-gray-800">
+                            <Bell className="h-5 w-5" />
+                        </button>
                     </div>
-                </div>
+                </header>
+
+                <main className="flex-1 overflow-y-auto p-6">
+                    {activeTab === 'dashboard' && (
+                        <div className="space-y-6">
+                            <div className="flex justify-between items-center">
+                                <h2 className="text-2xl font-bold text-white font-heading">Dashboard</h2>
+                                <div className="text-sm text-gray-400">Welcome back, Admin User</div>
+                            </div>
+
+                            {/* Stats Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                                <StatCard title="Total Bookings" value={stats.totalBookings} icon={Calendar} color="bg-blue-500" />
+                                <StatCard title="Total Revenue" value={`₹${stats.totalRevenue}`} icon={Banknote} color="bg-green-500" />
+                                <StatCard title="Confirmed" value={stats.confirmed} icon={Check} color="bg-purple-500" />
+                                <StatCard title="Pending" value={stats.pending} icon={Clock} color="bg-orange-500" />
+                            </div>
+
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                                {/* Recent Bookings */}
+                                <div className="bg-dark rounded-2xl border border-gray-800 p-6">
+                                    <div className="flex justify-between items-center mb-6">
+                                        <h3 className="font-bold text-lg text-white">Recent Bookings</h3>
+                                        <button onClick={() => setActiveTab('orders')} className="text-sm text-primary hover:underline">View All</button>
+                                    </div>
+                                    <div className="space-y-4">
+                                        {stats.recentBookings.length === 0 ? (
+                                            <p className="text-gray-500 text-sm">No bookings yet.</p>
+                                        ) : (
+                                            stats.recentBookings.map(order => (
+                                                <div key={order._id} className="flex justify-between items-center p-3 bg-darker rounded-xl border border-gray-800/50">
+                                                    <div>
+                                                        <p className="font-medium text-white text-sm">{order.customerName}</p>
+                                                        <p className="text-xs text-gray-500">{order.serviceName}</p>
+                                                    </div>
+                                                    <span className={`px-2 py-1 rounded text-[10px] uppercase ${order.status === 'Completed' ? 'bg-green-500/10 text-green-500' :
+                                                        order.status === 'Pending' ? 'bg-yellow-500/10 text-yellow-500' :
+                                                            'bg-blue-500/10 text-blue-500'
+                                                        }`}>
+                                                        {order.status}
+                                                    </span>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Top Locations */}
+                                <div className="bg-dark rounded-2xl border border-gray-800 p-6">
+                                    <h3 className="font-bold text-lg text-white mb-6">Top Locations</h3>
+                                    <div className="space-y-4">
+                                        {stats.topLocations.length === 0 ? (
+                                            <p className="text-gray-500 text-sm">No location data yet.</p>
+                                        ) : (
+                                            stats.topLocations.map((loc, idx) => (
+                                                <div key={idx} className="flex justify-between items-center p-4 bg-darker rounded-xl border border-gray-800/50">
+                                                    <div className="flex items-center">
+                                                        <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary mr-3">
+                                                            <MapPin className="h-4 w-4" />
+                                                        </div>
+                                                        <span className="font-medium text-white">{loc.city}</span>
+                                                    </div>
+                                                    <span className="text-xl font-bold text-white">{loc.count}</span>
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {activeTab === 'orders' && <OrdersPanel />}
+                    {activeTab === 'services' && <ServicesPanel />}
+                    {activeTab === 'locations' && <LocationsPanel />}
+                    {activeTab === 'pricing' && <PricingPanel />}
+                    {activeTab === 'cars' && <CarsPanel />}
+                </main>
             </div>
         </div>
     );
 };
+
+const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
+    <button
+        onClick={onClick}
+        className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl transition-all duration-200 ${active ? 'bg-primary text-white shadow-lg shadow-primary/25' : 'text-gray-400 hover:bg-gray-800 hover:text-white'}`}
+    >
+        <Icon className="h-5 w-5" />
+        <span className="font-medium">{label}</span>
+    </button>
+);
 
 const StatCard = ({ title, value, icon: Icon, color }) => (
     <div className="bg-dark rounded-2xl border border-gray-800 p-6 flex items-center justify-between">
@@ -408,258 +1017,19 @@ const OrdersPanel = () => {
                                     <p className="text-gray-400 text-sm">{selectedOrder.city}</p>
                                 </div>
                                 <div>
-                                    <h4 className="text-gray-500 text-xs uppercase tracking-wider mb-1">Payment Info</h4>
-                                    <div className="flex items-center space-x-2 mb-1">
+                                    <h4 className="text-gray-500 text-xs uppercase tracking-wider mb-1">Payment</h4>
+                                    <div className="flex items-center space-x-2">
                                         <span className="text-white font-medium">{selectedOrder.paymentMethod}</span>
                                         <span className={`px-2 py-0.5 rounded text-[10px] uppercase ${selectedOrder.paymentStatus === 'Paid' ? 'bg-green-500/20 text-green-500' : 'bg-yellow-500/20 text-yellow-500'}`}>
                                             {selectedOrder.paymentStatus}
                                         </span>
                                     </div>
-                                    {selectedOrder.paymentMethod === 'Razorpay' && selectedOrder.razorpayPaymentId && (
-                                        <p className="text-gray-500 text-xs font-mono">ID: {selectedOrder.razorpayPaymentId}</p>
-                                    )}
-                                    {selectedOrder.paymentMethod === 'COD' && selectedOrder.paymentStatus === 'Pending' && (
-                                        <p className="text-yellow-500 text-xs">Payment Remaining: ₹{selectedOrder.amount}</p>
-                                    )}
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
             )}
-        </div>
-    );
-};
-
-const ServicesPanel = () => {
-    const [services, setServices] = useState([]);
-    const [isEditing, setIsEditing] = useState(false);
-    const [currentService, setCurrentService] = useState(null);
-
-    useEffect(() => {
-        fetchServices();
-    }, []);
-
-    const fetchServices = async () => {
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            const res = await axios.get(`${API_URL}/api/services`);
-            setServices(Array.isArray(res.data) ? res.data : []);
-        } catch (err) {
-            console.error(err);
-            setServices([]);
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (window.confirm('Are you sure?')) {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            await axios.delete(`${API_URL}/api/services/${id}`);
-            fetchServices();
-        }
-    };
-
-    const handleSave = async (e) => {
-        e.preventDefault();
-        const formData = new FormData(e.target);
-        const data = Object.fromEntries(formData.entries());
-        data.features = data.features.split(',').map(s => s.trim());
-        data.availableLocations = data.availableLocations.split(',').map(s => s.trim());
-
-        if (currentService) {
-            await axios.put(`http://localhost:5000/api/services/${currentService._id}`, data);
-        } else {
-            await axios.post('http://localhost:5000/api/services', data);
-        }
-        setIsEditing(false);
-        setCurrentService(null);
-        fetchServices();
-    };
-
-    return (
-        <div>
-            <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-bold text-white font-heading">Services</h2>
-                <button
-                    onClick={() => { setCurrentService(null); setIsEditing(true); }}
-                    className="flex items-center bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
-                >
-                    <Plus className="h-4 w-4 mr-2" /> Add Service
-                </button>
-            </div>
-
-            {isEditing ? (
-                <div className="bg-dark p-8 rounded-2xl border border-gray-800 shadow-xl">
-                    <h3 className="text-xl font-bold text-white mb-6 font-heading">{currentService ? 'Edit Service' : 'Add New Service'}</h3>
-                    <form onSubmit={handleSave} className="space-y-4">
-                        <input name="title" defaultValue={currentService?.title} placeholder="Service Title" required className="w-full bg-darker border border-gray-700 rounded-xl p-4 text-white focus:border-primary focus:outline-none" />
-                        <textarea name="description" defaultValue={currentService?.description} placeholder="Description" required className="w-full bg-darker border border-gray-700 rounded-xl p-4 text-white focus:border-primary focus:outline-none" />
-                        <input name="price" type="number" defaultValue={currentService?.price} placeholder="Price" required className="w-full bg-darker border border-gray-700 rounded-xl p-4 text-white focus:border-primary focus:outline-none" />
-                        <input name="image" defaultValue={currentService?.image} placeholder="Image URL" required className="w-full bg-darker border border-gray-700 rounded-xl p-4 text-white focus:border-primary focus:outline-none" />
-                        <input name="features" defaultValue={currentService?.features.join(', ')} placeholder="Features (comma separated)" required className="w-full bg-darker border border-gray-700 rounded-xl p-4 text-white focus:border-primary focus:outline-none" />
-                        <input name="availableLocations" defaultValue={currentService?.availableLocations.map(loc => typeof loc === 'object' ? loc.city : loc).join(', ')} placeholder="Locations (comma separated: Ahmedabad, Surat)" required className="w-full bg-darker border border-gray-700 rounded-xl p-4 text-white focus:border-primary focus:outline-none" />
-
-                        <div className="flex space-x-4 pt-4">
-                            <button type="submit" className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-600 transition-colors">Save Service</button>
-                            <button type="button" onClick={() => setIsEditing(false)} className="bg-gray-700 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-600 transition-colors">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            ) : (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {Array.isArray(services) && services.length > 0 ? (
-                        services.map(service => (
-                            <div key={service._id} className="bg-dark p-6 rounded-2xl border border-gray-800 hover:border-gray-700 transition-all group">
-                                <div className="flex justify-between items-start mb-4">
-                                    <h3 className="font-bold text-white text-lg">{service.title}</h3>
-                                    <div className="flex space-x-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                        <button onClick={() => { setCurrentService(service); setIsEditing(true); }} className="p-2 bg-gray-800 rounded-lg text-blue-400 hover:text-white hover:bg-blue-500 transition-colors"><Edit className="h-4 w-4" /></button>
-                                        <button onClick={() => handleDelete(service._id)} className="p-2 bg-gray-800 rounded-lg text-red-400 hover:text-white hover:bg-red-500 transition-colors"><Trash2 className="h-4 w-4" /></button>
-                                    </div>
-                                </div>
-                                <p className="text-primary font-bold text-xl mb-2">₹{service.price}</p>
-                                <p className="text-gray-500 text-xs bg-darker inline-block px-2 py-1 rounded-md">
-                                    {service.availableLocations.map(loc => typeof loc === 'object' ? loc.city : loc).join(', ')}
-                                </p>
-                            </div>
-                        ))
-                    ) : (
-                        <div className="col-span-3 text-center text-gray-500 py-10">
-                            No services found or failed to load.
-                        </div>
-                    )}
-                </div>
-            )}
-        </div>
-    );
-};
-
-const LocationsPanel = () => {
-    const [locations, setLocations] = useState([]);
-    const [isAdding, setIsAdding] = useState(false);
-    const [newLocation, setNewLocation] = useState({ city: '', areas: '' });
-
-    useEffect(() => {
-        fetchLocations();
-    }, []);
-
-    const fetchLocations = async () => {
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            const res = await axios.get(`${API_URL}/api/locations`);
-            setLocations(Array.isArray(res.data) ? res.data : []);
-        } catch (err) {
-            console.error(err);
-            setLocations([]);
-        }
-    };
-
-    const handleAddLocation = async (e) => {
-        e.preventDefault();
-        try {
-            const token = localStorage.getItem('adminToken');
-            const areasArray = newLocation.areas.split(',').map(area => area.trim());
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            await axios.post(`${API_URL}/api/locations`, {
-                city: newLocation.city,
-                areas: areasArray
-            }, {
-                headers: { Authorization: `Bearer ${token}` }
-            });
-            setIsAdding(false);
-            setNewLocation({ city: '', areas: '' });
-            fetchLocations();
-        } catch (err) {
-            console.error(err);
-            alert('Failed to add location');
-        }
-    };
-
-    const handleDeleteLocation = async (id) => {
-        if (window.confirm('Are you sure you want to delete this location?')) {
-            try {
-                const token = localStorage.getItem('adminToken');
-                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-                await axios.delete(`${API_URL}/api/locations/${id}`, {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                fetchLocations();
-            } catch (err) {
-                console.error(err);
-                alert('Failed to delete location');
-            }
-        }
-    };
-
-    return (
-        <div>
-            <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-bold text-white font-heading">Locations</h2>
-                <button
-                    onClick={() => setIsAdding(true)}
-                    className="flex items-center bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors text-sm font-medium"
-                >
-                    <Plus className="h-4 w-4 mr-2" /> Add Location
-                </button>
-            </div>
-
-            {isAdding && (
-                <div className="bg-dark p-8 rounded-2xl border border-gray-800 shadow-xl mb-8">
-                    <h3 className="text-xl font-bold text-white mb-6 font-heading">Add New Location</h3>
-                    <form onSubmit={handleAddLocation} className="space-y-4">
-                        <input
-                            value={newLocation.city}
-                            onChange={(e) => setNewLocation({ ...newLocation, city: e.target.value })}
-                            placeholder="City Name"
-                            required
-                            className="w-full bg-darker border border-gray-700 rounded-xl p-4 text-white focus:border-primary focus:outline-none"
-                        />
-                        <input
-                            value={newLocation.areas}
-                            onChange={(e) => setNewLocation({ ...newLocation, areas: e.target.value })}
-                            placeholder="Areas (comma separated)"
-                            required
-                            className="w-full bg-darker border border-gray-700 rounded-xl p-4 text-white focus:border-primary focus:outline-none"
-                        />
-                        <div className="flex space-x-4 pt-4">
-                            <button type="submit" className="bg-primary text-white px-8 py-3 rounded-xl font-bold hover:bg-blue-600 transition-colors">Save Location</button>
-                            <button type="button" onClick={() => setIsAdding(false)} className="bg-gray-700 text-white px-8 py-3 rounded-xl font-bold hover:bg-gray-600 transition-colors">Cancel</button>
-                        </div>
-                    </form>
-                </div>
-            )}
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {Array.isArray(locations) && locations.map(loc => (
-                    <div key={loc._id} className="bg-dark p-6 rounded-2xl border border-gray-800 relative group">
-                        <button
-                            onClick={() => handleDeleteLocation(loc._id)}
-                            className="absolute top-4 right-4 text-gray-500 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </button>
-                        <div className="flex items-center mb-4">
-                            <div className="w-12 h-12 rounded-full bg-primary/20 flex items-center justify-center text-primary mr-4">
-                                <MapPin className="h-6 w-6" />
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-bold text-white">{loc.city}</h3>
-                                <p className="text-gray-500 text-sm">{loc.areas.length} Areas Covered</p>
-                            </div>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                            {loc.areas.slice(0, 3).map((area, idx) => (
-                                <span key={idx} className="text-xs bg-darker text-gray-400 px-2 py-1 rounded">
-                                    {area}
-                                </span>
-                            ))}
-                            {loc.areas.length > 3 && (
-                                <span className="text-xs text-gray-500 px-2 py-1">+{loc.areas.length - 3} more</span>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
         </div>
     );
 };

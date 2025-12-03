@@ -1,38 +1,56 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import ServiceCard from '../components/ServiceCard';
-import { motion } from 'framer-motion';
 import { useLocationContext } from '../context/LocationContext';
+import { useCarSelection } from '../context/CarSelectionContext';
+import ServiceCard from '../components/ServiceCard';
+import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 
 const Services = () => {
     const [services, setServices] = useState([]);
+    const [settings, setSettings] = useState({});
     const [loading, setLoading] = useState(true);
     const { city } = useLocationContext();
+    const { carType, openCarModal } = useCarSelection();
+    const navigate = useNavigate();
 
     useEffect(() => {
-        fetchServices();
+        const fetchData = async () => {
+            try {
+                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+                // Fetch Services
+                let url = `${API_URL}/api/services`;
+                if (city) {
+                    url += `?location=${city}`;
+                }
+                const servicesRes = await axios.get(url);
+                setServices(servicesRes.data);
+
+                // Fetch Settings for Pricing
+                const settingsRes = await axios.get(`${API_URL}/api/settings`);
+                setSettings(settingsRes.data);
+            } catch (err) {
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
     }, [city]);
 
-    const fetchServices = async () => {
-        try {
-            setLoading(true);
-            let url = 'http://localhost:5000/api/services';
-            if (city) {
-                url += `?location=${city}`;
-            }
-            const res = await axios.get(url);
-            if (Array.isArray(res.data)) {
-                setServices(res.data);
-            } else {
-                console.error("API did not return an array:", res.data);
-                setServices([]);
-            }
-        } catch (err) {
-            console.error('Error fetching services:', err);
-            setServices([]);
-        } finally {
-            setLoading(false);
+    const handleBookNow = (service) => {
+        if (!carType) {
+            openCarModal();
+        } else {
+            navigate('/booking', { state: { service } });
         }
+    };
+
+    const getDynamicPrice = (basePrice) => {
+        if (!carType) return basePrice;
+        const extraCharge = settings[`charge_${carType}`] || 0;
+        return basePrice + extraCharge;
     };
 
     return (
@@ -58,6 +76,15 @@ const Services = () => {
                         <p className="text-gray-400 max-w-2xl mx-auto text-lg font-light">
                             Showing services available in <span className="text-primary font-bold">{city || 'All Locations'}</span>
                         </p>
+                        {carType && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="mt-6 inline-block bg-primary/20 border border-primary/50 rounded-full px-6 py-2"
+                            >
+                                <span className="text-white">Pricing for: <span className="font-bold text-primary uppercase">{carType}</span></span>
+                            </motion.div>
+                        )}
                     </motion.div>
                 </div>
             </div>
@@ -69,30 +96,36 @@ const Services = () => {
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 perspective-1000">
-                        {Array.isArray(services) && services.map((service, index) => (
-                            <motion.div
-                                key={service._id}
-                                initial={{ opacity: 0, rotateY: 90 }}
-                                whileInView={{ opacity: 1, rotateY: 0 }}
-                                viewport={{ once: true, margin: "-50px" }}
-                                transition={{
-                                    duration: 0.8,
-                                    delay: index * 0.2,
-                                    type: "spring",
-                                    stiffness: 100,
-                                    damping: 20
-                                }}
-                                style={{ transformOrigin: "left center" }}
-                            >
-                                <ServiceCard service={service} />
-                            </motion.div>
-                        ))}
-                    </div>
-                )}
-
-                {!loading && services.length === 0 && (
-                    <div className="text-center py-20 bg-dark rounded-2xl border border-gray-800 border-dashed">
-                        <p className="text-gray-400 text-lg">No services found for this location.</p>
+                        {Array.isArray(services) && services.length > 0 ? (
+                            services.map((service, index) => (
+                                <motion.div
+                                    key={service._id}
+                                    initial={{ opacity: 0, rotateY: 90 }}
+                                    whileInView={{ opacity: 1, rotateY: 0 }}
+                                    viewport={{ once: true, margin: "-50px" }}
+                                    transition={{
+                                        duration: 0.8,
+                                        delay: index * 0.2,
+                                        type: "spring",
+                                        stiffness: 100,
+                                        damping: 20
+                                    }}
+                                    style={{ transformOrigin: "left center" }}
+                                >
+                                    <ServiceCard
+                                        service={{
+                                            ...service,
+                                            price: getDynamicPrice(service.price)
+                                        }}
+                                        onBook={() => handleBookNow(service)}
+                                    />
+                                </motion.div>
+                            ))
+                        ) : (
+                            <div className="col-span-3 text-center py-20 bg-dark rounded-2xl border border-gray-800 border-dashed">
+                                <p className="text-gray-400 text-lg">No services found for this location.</p>
+                            </div>
+                        )}
                     </div>
                 )}
             </div>

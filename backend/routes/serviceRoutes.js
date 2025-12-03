@@ -30,11 +30,23 @@ router.get('/', async (req, res) => {
 
 // Add a service
 router.post('/', async (req, res) => {
-    const service = new Service(req.body);
     try {
+        const serviceData = { ...req.body };
+
+        // Convert city names to Location IDs
+        if (serviceData.availableLocations && Array.isArray(serviceData.availableLocations)) {
+            const Location = require('../models/Location');
+            const locationDocs = await Location.find({
+                city: { $in: serviceData.availableLocations }
+            });
+            serviceData.availableLocations = locationDocs.map(loc => loc._id);
+        }
+
+        const service = new Service(serviceData);
         const newService = await service.save();
         res.status(201).json(newService);
     } catch (err) {
+        console.error("Error adding service:", err);
         res.status(400).json({ message: err.message });
     }
 });
@@ -42,9 +54,26 @@ router.post('/', async (req, res) => {
 // Update a service
 router.put('/:id', async (req, res) => {
     try {
-        const updatedService = await Service.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const serviceData = { ...req.body };
+
+        // Convert city names to Location IDs if provided
+        if (serviceData.availableLocations && Array.isArray(serviceData.availableLocations)) {
+            // Check if the array contains strings (city names) or already IDs
+            const needsConversion = serviceData.availableLocations.some(loc => typeof loc === 'string' && !loc.match(/^[0-9a-fA-F]{24}$/));
+
+            if (needsConversion) {
+                const Location = require('../models/Location');
+                const locationDocs = await Location.find({
+                    city: { $in: serviceData.availableLocations }
+                });
+                serviceData.availableLocations = locationDocs.map(loc => loc._id);
+            }
+        }
+
+        const updatedService = await Service.findByIdAndUpdate(req.params.id, serviceData, { new: true });
         res.json(updatedService);
     } catch (err) {
+        console.error("Error updating service:", err);
         res.status(400).json({ message: err.message });
     }
 });

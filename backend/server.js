@@ -29,27 +29,18 @@ mongoose.connect(process.env.MONGO_URI)
 // Routes
 const serviceRoutes = require('./routes/serviceRoutes');
 const orderRoutes = require('./routes/orderRoutes');
-console.log('Order Routes Type:', typeof orderRoutes);
-if (typeof orderRoutes !== 'function') console.error('CRITICAL: orderRoutes is not a function/router');
-
-const adminRoutes = require('./routes/adminRoutes');
 const locationRoutes = require('./routes/locationRoutes');
-
-app.use((req, res, next) => {
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.url}`);
-    next();
-});
+const adminRoutes = require('./routes/adminRoutes');
+const settingsRoutes = require('./routes/settingsRoutes');
+const carRoutes = require('./routes/carRoutes');
 
 app.use('/api/services', serviceRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/admin', adminRoutes);
 app.use('/api/locations', locationRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/settings', settingsRoutes);
+app.use('/api/cars', carRoutes);
 
-app.get('/', (req, res) => {
-    res.send('GLO CAR API is running');
-});
-
-// Start Server
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log('SERVER_ID: ' + Date.now());

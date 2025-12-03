@@ -4,24 +4,16 @@ import { Menu, X, Search, MapPin } from 'lucide-react';
 import logo from '../assets/logo.png';
 import { useLocationContext } from '../context/LocationContext';
 
+import { useCarSelection } from '../context/CarSelectionContext';
+
 const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const location = useLocation();
     const { city, openLocationModal } = useLocationContext();
+    const { openCarModal } = useCarSelection();
 
-    // Handle scroll effect
-    useEffect(() => {
-        const handleScroll = () => {
-            if (window.scrollY > 50) {
-                setScrolled(true);
-            } else {
-                setScrolled(false);
-            }
-        };
-        window.addEventListener('scroll', handleScroll);
-        return () => window.removeEventListener('scroll', handleScroll);
-    }, []);
+    // ... (keep existing useEffect)
 
     const isHome = location.pathname === '/';
     const navbarClass = `fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-darker/95 backdrop-blur-md py-4 shadow-lg' : 'bg-transparent py-6'
@@ -66,12 +58,12 @@ const Navbar = () => {
                             <Search className="h-5 w-5" />
                         </button>
 
-                        <Link
-                            to="/booking"
+                        <button
+                            onClick={openCarModal}
                             className="bg-primary hover:bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold text-sm uppercase tracking-wide transition-all transform hover:scale-105"
                         >
                             Book Now
-                        </Link>
+                        </button>
                     </div>
 
                     {/* Mobile Menu Button */}
@@ -97,13 +89,15 @@ const Navbar = () => {
                                 {item}
                             </Link>
                         ))}
-                        <Link
-                            to="/booking"
+                        <button
+                            onClick={() => {
+                                setIsOpen(false);
+                                openCarModal();
+                            }}
                             className="bg-primary text-white px-8 py-3 rounded-full font-bold uppercase tracking-wide mt-4"
-                            onClick={() => setIsOpen(false)}
                         >
                             Book Now
-                        </Link>
+                        </button>
                     </div>
                 </div>
             )}

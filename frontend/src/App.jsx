@@ -44,12 +44,18 @@ function AppContent() {
   );
 }
 
+import { CarSelectionProvider } from './context/CarSelectionContext';
+import CarSelectionModal from './components/CarSelectionModal';
+
 function App() {
   return (
     <LocationProvider>
-      <Router>
-        <AppContent />
-      </Router>
+      <CarSelectionProvider>
+        <Router>
+          <AppContent />
+          <CarSelectionModal />
+        </Router>
+      </CarSelectionProvider>
     </LocationProvider>
   );
 }
