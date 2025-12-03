@@ -15,6 +15,15 @@ const Services = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
+        if (!carType) {
+            const timer = setTimeout(() => {
+                openCarModal();
+            }, 500); // Small delay for better UX
+            return () => clearTimeout(timer);
+        }
+    }, [carType, openCarModal]);
+
+    useEffect(() => {
         const fetchData = async () => {
             try {
                 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
