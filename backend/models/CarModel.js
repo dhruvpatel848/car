@@ -1,3 +1,4 @@
+```javascript
 const mongoose = require('mongoose');
 
 const carModelSchema = new mongoose.Schema({
@@ -8,7 +9,9 @@ const carModelSchema = new mongoose.Schema({
         enum: ['hatchback', 'sedan', 'suv', 'luxury'],
         required: true
     },
-    image: { type: String } // URL to car image
+    segment: { type: String, required: true }, // e.g., 'Compact Sedan', 'Mid-size SUV'
+    image: { type: String, required: true }
 }, { timestamps: true });
 
 module.exports = mongoose.model('CarModel', carModelSchema);
+```

@@ -98,16 +98,23 @@ const Booking = () => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
     };
 
+    const getDynamicPrice = (service) => {
+        if (!selectedModel || !selectedModel.segment) return service.basePrice;
+        if (service.pricingRules && service.pricingRules[selectedModel.segment]) {
+            return service.pricingRules[selectedModel.segment];
+        }
+        return service.basePrice;
+    };
+
     const handleServiceChange = (e) => {
         const service = services.find(s => s._id === e.target.value);
         if (service) {
-            // Calculate dynamic price if selecting from dropdown
-            const extra = settings[`charge_${carType}`] || 0;
+            const finalPrice = getDynamicPrice(service);
             setFormData({
                 ...formData,
                 serviceId: service._id,
                 serviceName: service.title,
-                basePrice: service.price + extra
+                basePrice: finalPrice
             });
         }
     };

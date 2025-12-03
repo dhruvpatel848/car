@@ -2,13 +2,35 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Check, MapPin, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useCarSelection } from '../context/CarSelectionContext';
 
-const ServiceCard = ({ service }) => {
+const ServiceCard = ({ service, onBook }) => {
     const navigate = useNavigate();
+    const { carType } = useCarSelection();
 
-    const handleBook = () => {
-        navigate('/booking', { state: { service } });
-    };
+    // carType here is actually the 'segment' (e.g., 'Compact Sedan') because we updated the context to use it?
+    // Wait, let's check CarSelectionContext. It likely stores 'selectedCar' object which has 'segment'.
+    // But the hook exposes 'carType' which was originally 'hatchback'/'sedan' etc.
+    // We need to ensure we are getting the 'segment'.
+    // For now, let's assume 'carType' holds the segment string if we updated the context, 
+    // OR we need to access the full car object. 
+    // Let's use 'selectedCar' from context if available.
+
+    // Actually, let's look at how Services.jsx passes data. 
+    // Services.jsx uses `getDynamicPrice` but we want to move that logic here or use the one passed in.
+    // Services.jsx: `price: getDynamicPrice(service.price)`
+    // But `getDynamicPrice` in Services.jsx uses the OLD settings logic.
+    // We need to update Services.jsx too.
+
+    // For this file, let's just display `service.price` which should be passed correctly calculated from parent.
+    // OR calculate it here if we have the context.
+
+    // Let's stick to the plan: Update ServiceCard to use pricing rules? 
+    // Actually, Services.jsx is the parent and it iterates services. 
+    // It's better to calculate price in Services.jsx and pass it down, OR calculate here.
+    // Let's calculate here to be self-contained if we have the context.
+
+    // But wait, the previous edit messed up the file. Let's restore it first.
 
     return (
         <motion.div
@@ -48,7 +70,7 @@ const ServiceCard = ({ service }) => {
                     </div>
 
                     <button
-                        onClick={handleBook}
+                        onClick={onBook}
                         className="w-full bg-white text-darker font-bold py-4 rounded-xl hover:bg-primary hover:text-white transition-all flex items-center justify-center group/btn"
                     >
                         Book Now

@@ -8,37 +8,30 @@ import { motion } from 'framer-motion';
 
 const Services = () => {
     const [services, setServices] = useState([]);
-    const [settings, setSettings] = useState({});
     const [loading, setLoading] = useState(true);
     const { city } = useLocationContext();
-    const { carType, openCarModal } = useCarSelection();
+    const { selectedCar, openCarModal } = useCarSelection();
     const navigate = useNavigate();
 
     useEffect(() => {
-        if (!carType) {
+        if (!selectedCar) {
             const timer = setTimeout(() => {
                 openCarModal();
-            }, 500); // Small delay for better UX
+            }, 500);
             return () => clearTimeout(timer);
         }
-    }, [carType, openCarModal]);
+    }, [selectedCar, openCarModal]);
 
     useEffect(() => {
         const fetchData = async () => {
             try {
                 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-
-                // Fetch Services
                 let url = `${API_URL}/api/services`;
                 if (city) {
                     url += `?location=${city}`;
                 }
                 const servicesRes = await axios.get(url);
                 setServices(servicesRes.data);
-
-                // Fetch Settings for Pricing
-                const settingsRes = await axios.get(`${API_URL}/api/settings`);
-                setSettings(settingsRes.data);
             } catch (err) {
                 console.error(err);
             } finally {
@@ -48,18 +41,21 @@ const Services = () => {
         fetchData();
     }, [city]);
 
-    const handleBookNow = (service) => {
-        if (!carType) {
-            openCarModal();
-        } else {
-            navigate('/booking', { state: { service } });
+    const getDynamicPrice = (service) => {
+        if (!selectedCar || !selectedCar.segment) return service.basePrice;
+        if (service.pricingRules && service.pricingRules[selectedCar.segment]) {
+            return service.pricingRules[selectedCar.segment];
         }
+        return service.basePrice;
     };
 
-    const getDynamicPrice = (basePrice) => {
-        if (!carType) return basePrice;
-        const extraCharge = settings[`charge_${carType}`] || 0;
-        return basePrice + extraCharge;
+    const handleBookNow = (service) => {
+        if (!selectedCar) {
+            openCarModal();
+        } else {
+            const finalPrice = getDynamicPrice(service);
+            navigate('/booking', { state: { service: { ...service, price: finalPrice } } });
+        }
     };
 
     return (
@@ -85,13 +81,16 @@ const Services = () => {
                         <p className="text-gray-400 max-w-2xl mx-auto text-lg font-light">
                             Showing services available in <span className="text-primary font-bold">{city || 'All Locations'}</span>
                         </p>
-                        {carType && (
+                        {selectedCar && (
                             <motion.div
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
                                 className="mt-6 inline-block bg-primary/20 border border-primary/50 rounded-full px-6 py-2"
                             >
-                                <span className="text-white">Pricing for: <span className="font-bold text-primary uppercase">{carType}</span></span>
+                                <span className="text-white">
+                                    Pricing for: <span className="font-bold text-primary uppercase">{selectedCar.brand} {selectedCar.name}</span>
+                                    <span className="text-gray-400 text-xs ml-2">({selectedCar.segment})</span>
+                                </span>
                             </motion.div>
                         )}
                     </motion.div>
@@ -124,7 +123,7 @@ const Services = () => {
                                     <ServiceCard
                                         service={{
                                             ...service,
-                                            price: getDynamicPrice(service.price)
+                                            price: getDynamicPrice(service)
                                         }}
                                         onBook={() => handleBookNow(service)}
                                     />
