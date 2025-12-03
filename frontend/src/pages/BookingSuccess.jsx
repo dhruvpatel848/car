@@ -4,7 +4,7 @@ import { CheckCircle, Home, Calendar, MapPin } from 'lucide-react';
 
 const BookingSuccess = () => {
     const location = useLocation();
-    const { orderId, serviceName, date, time, amount, paymentMethod } = location.state || {};
+    const { orderId, serviceName, appointmentDate, appointmentTime, amount, paymentMethod } = location.state || {};
 
     return (
         <div className="min-h-screen bg-darker pt-24 pb-12 font-sans text-white flex items-center justify-center">
@@ -36,7 +36,9 @@ const BookingSuccess = () => {
                                 </div>
                                 <div>
                                     <p className="text-gray-400 text-sm flex items-center"><Calendar className="h-3 w-3 mr-1" /> Date & Time</p>
-                                    <p className="font-medium text-white">{new Date(date).toDateString()} at {time}</p>
+                                    <p className="font-medium text-white">
+                                        {appointmentDate ? new Date(appointmentDate).toDateString() : 'N/A'} at {appointmentTime || 'N/A'}
+                                    </p>
                                 </div>
                                 <div>
                                     <p className="text-gray-400 text-sm">Order ID</p>

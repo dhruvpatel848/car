@@ -1,0 +1,27 @@
+[{
+  "_id": {
+    "$oid": "692ab62d3f279e719435917f"
+  },
+  "email": "admin@glocar.in",
+  "password": "$2b$10$z9dEzubzep/S6JVuwHjgl.Kc90jzTYLoHF9XKJidB7PKVEy.ENQHu",
+  "name": "Admin",
+  "role": "admin",
+  "createdAt": {
+    "$date": "2025-11-29T09:00:29.992Z"
+  },
+  "__v": 0
+},
+{
+  "_id": {
+    "$oid": "692aedb7ff511430eee03c79"
+  },
+  "username": "admin",
+  "password": "$2a$10$K6Zf/5zy8MqvT2YytD3JQuRwH/52XdXut9s/vdfLwaca37tLvah2a",
+  "createdAt": {
+    "$date": "2025-11-29T12:57:27.743Z"
+  },
+  "updatedAt": {
+    "$date": "2025-11-29T12:57:27.743Z"
+  },
+  "__v": 0
+}]
