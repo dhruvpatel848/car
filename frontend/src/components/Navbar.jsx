@@ -17,11 +17,36 @@ const Navbar = () => {
     const { city, openLocationModal } = useLocationContext();
     const { openCarModal, selectedModel, selectedBrand } = useCarSelection();
 
-    // ... (keep existing useEffect)
+    const [isVisible, setIsVisible] = useState(true);
+    const lastScrollY = React.useRef(0);
+
+    useEffect(() => {
+        const handleScroll = () => {
+            const currentScrollY = window.scrollY;
+
+            // Background logic
+            if (currentScrollY > 50) {
+                setScrolled(true);
+            } else {
+                setScrolled(false);
+            }
+
+            // Hide/Show logic
+            if (currentScrollY > lastScrollY.current && currentScrollY > 100) {
+                setIsVisible(false); // Hide when scrolling down
+            } else {
+                setIsVisible(true);  // Show when scrolling up
+            }
+
+            lastScrollY.current = currentScrollY;
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, []);
 
     const isHome = location.pathname === '/';
-    const navbarClass = `fixed w-full z-50 transition-all duration-300 ${scrolled ? 'bg-darker/95 backdrop-blur-md py-4 shadow-lg' : 'bg-transparent py-6'
-        }`;
+    const navbarClass = `fixed w-full z-50 transition-all duration-300 transform ${isVisible ? 'translate-y-0' : '-translate-y-full'} ${scrolled ? 'bg-darker/95 backdrop-blur-md py-4 shadow-lg' : 'bg-transparent py-6'}`;
 
     return (
         <>
@@ -45,7 +70,7 @@ const Navbar = () => {
                         {/* Center: Logo */}
                         <div className="flex-shrink-0 absolute left-1/2 transform -translate-x-1/2">
                             <Link to="/" className="flex items-center">
-                                <img src={logo} alt="GLO CAR" className="h-16 md:h-24 w-auto" />
+                                <img src={logo} alt="GLO CAR" className="h-24 md:h-32 w-auto" />
                             </Link>
                         </div>
 

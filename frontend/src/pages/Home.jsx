@@ -43,23 +43,23 @@ const Home = () => {
                 </div>
 
                 {/* Content */}
-                <div className="container-custom relative z-10 text-center mt-10">
+                <div className="container-custom relative z-10 text-center mt-10 px-4">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.8 }}
                     >
-                        <span className="text-white/80 font-bold tracking-[0.2em] uppercase text-sm md:text-base mb-6 block font-heading">
+                        <span className="text-white/80 font-bold tracking-[0.2em] uppercase text-xs md:text-base mb-4 md:mb-6 block font-heading">
                             Fueled by Passion
                         </span>
-                        <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-8 leading-tight font-heading">
-                            Experience superior <br /> car detailing
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 md:mb-8 leading-tight font-heading">
+                            Experience superior <br className="hidden md:block" /> car detailing
                         </h1>
 
-                        <div className="flex flex-col sm:flex-row justify-center gap-6 mt-10">
+                        <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6 mt-8 md:mt-10">
                             <button
                                 onClick={handleGetStarted}
-                                className="bg-primary hover:bg-blue-600 text-white px-10 py-4 rounded-full font-bold text-sm uppercase tracking-widest transition-all transform hover:scale-105 shadow-lg shadow-primary/30"
+                                className="bg-primary hover:bg-blue-600 text-white px-8 py-3 md:px-10 md:py-4 rounded-full font-bold text-sm uppercase tracking-widest transition-all transform hover:scale-105 shadow-lg shadow-primary/30 w-full sm:w-auto"
                             >
                                 Get Started Now
                             </button>
@@ -67,7 +67,7 @@ const Home = () => {
                     </motion.div>
                 </div>
 
-                {/* Right Side Indicators */}
+                {/* Right Side Indicators - Hidden on Mobile */}
                 <div className="absolute right-8 md:right-12 top-1/2 transform -translate-y-1/2 hidden md:flex flex-col gap-8 z-20">
                     <div className="flex items-center gap-4">
                         <div className="w-8 h-[2px] bg-white"></div>
@@ -82,7 +82,7 @@ const Home = () => {
                 </div>
 
                 {/* Scroll Indicator */}
-                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20 animate-bounce">
+                <div className="absolute bottom-10 left-1/2 transform -translate-x-1/2 z-20 animate-bounce hidden md:block">
                     <div className="w-[30px] h-[50px] border-2 border-white/30 rounded-full flex justify-center p-2">
                         <div className="w-1 h-2 bg-white rounded-full animate-scroll"></div>
                     </div>
@@ -92,32 +92,30 @@ const Home = () => {
             {/* Service Slider */}
             <ServiceSlider />
 
-
-
             {/* About Teaser */}
-            <section className="py-24 bg-darker relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-1/3 h-full bg-dark/50 skew-x-12 transform translate-x-20"></div>
-                <div className="container-custom relative z-10">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-                        <div className="relative">
-                            <div className="absolute -inset-4 border-2 border-primary/30 rounded-none transform rotate-3"></div>
+            <section className="py-16 md:py-24 bg-darker relative overflow-hidden">
+                <div className="absolute top-0 right-0 w-1/3 h-full bg-dark/50 skew-x-12 transform translate-x-20 hidden md:block"></div>
+                <div className="container-custom relative z-10 px-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-10 md:gap-16 items-center">
+                        <div className="relative order-2 md:order-1">
+                            <div className="absolute -inset-4 border-2 border-primary/30 rounded-none transform rotate-3 hidden md:block"></div>
                             <img
                                 src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=80&w=1000"
                                 alt="Detailing Process"
-                                className="relative shadow-2xl grayscale hover:grayscale-0 transition-all duration-500"
+                                className="relative shadow-2xl grayscale hover:grayscale-0 transition-all duration-500 w-full rounded-lg md:rounded-none"
                             />
                         </div>
-                        <div>
-                            <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block font-heading">About Us</span>
-                            <h2 className="text-4xl md:text-5xl font-bold text-white mb-8 font-heading leading-tight">
-                                We Care About Your Car <br /> As Much As You Do
+                        <div className="order-1 md:order-2">
+                            <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm mb-2 md:mb-4 block font-heading">About Us</span>
+                            <h2 className="text-3xl md:text-5xl font-bold text-white mb-6 md:mb-8 font-heading leading-tight">
+                                We Care About Your Car <br className="hidden md:block" /> As Much As You Do
                             </h2>
-                            <p className="text-gray-400 mb-8 leading-relaxed text-lg font-light">
+                            <p className="text-gray-400 mb-6 md:mb-8 leading-relaxed text-base md:text-lg font-light">
                                 At GLO CAR, we believe that every vehicle deserves to look its best. Our team of certified professionals uses the latest technology and premium products to restore your car's original glory.
                             </p>
-                            <ul className="space-y-4 mb-10">
+                            <ul className="space-y-3 md:space-y-4 mb-8 md:mb-10">
                                 {['Certified Technicians', 'Eco-Friendly Products', '100% Satisfaction Guarantee'].map((item, i) => (
-                                    <li key={i} className="flex items-center text-gray-300 font-medium">
+                                    <li key={i} className="flex items-center text-gray-300 font-medium text-sm md:text-base">
                                         <span className="w-2 h-2 bg-primary rounded-full mr-4"></span>
                                         {item}
                                     </li>
@@ -132,9 +130,9 @@ const Home = () => {
             </section>
 
             {/* Stats Section */}
-            <section className="py-20 bg-dark border-y border-gray-800">
-                <div className="container-custom">
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+            <section className="py-12 md:py-20 bg-dark border-y border-gray-800">
+                <div className="container-custom px-4">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-12 text-center">
                         {[
                             { count: '5000+', label: 'Happy Clients' },
                             { count: '12+', label: 'Awards Won' },
@@ -142,10 +140,10 @@ const Home = () => {
                             { count: '2', label: 'Cities Covered' },
                         ].map((stat, index) => (
                             <div key={index} className="text-white group">
-                                <div className="text-5xl font-bold mb-3 font-heading text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 group-hover:from-primary group-hover:to-blue-400 transition-all">
+                                <div className="text-3xl md:text-5xl font-bold mb-2 md:mb-3 font-heading text-transparent bg-clip-text bg-gradient-to-r from-white to-gray-500 group-hover:from-primary group-hover:to-blue-400 transition-all">
                                     {stat.count}
                                 </div>
-                                <div className="text-gray-400 font-medium uppercase tracking-wider text-sm">{stat.label}</div>
+                                <div className="text-gray-400 font-medium uppercase tracking-wider text-xs md:text-sm">{stat.label}</div>
                             </div>
                         ))}
                     </div>
@@ -153,26 +151,26 @@ const Home = () => {
             </section>
 
             {/* Process Section */}
-            <section className="py-24 bg-darker">
-                <div className="container-custom">
-                    <div className="text-center mb-20">
-                        <span className="text-primary font-bold tracking-widest uppercase text-sm mb-4 block font-heading">Process</span>
-                        <h2 className="text-4xl md:text-5xl font-bold text-white font-heading">How It Works</h2>
+            <section className="py-16 md:py-24 bg-darker">
+                <div className="container-custom px-4">
+                    <div className="text-center mb-12 md:mb-20">
+                        <span className="text-primary font-bold tracking-widest uppercase text-xs md:text-sm mb-2 md:mb-4 block font-heading">Process</span>
+                        <h2 className="text-3xl md:text-5xl font-bold text-white font-heading">How It Works</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 md:gap-12">
                         {[
                             { step: '01', title: 'Book Online', desc: 'Choose your service and preferred time slot through our website.' },
                             { step: '02', title: 'We Arrive', desc: 'Our fully equipped van arrives at your doorstep on time.' },
                             { step: '03', title: 'You Relax', desc: 'We make your car shine while you enjoy your free time.' }
                         ].map((item, index) => (
-                            <div key={index} className="relative group">
-                                <div className="text-8xl font-bold text-gray-800/30 absolute -top-10 -left-4 font-heading group-hover:text-primary/10 transition-colors">
+                            <div key={index} className="relative group pl-4 md:pl-0">
+                                <div className="text-6xl md:text-8xl font-bold text-gray-800/30 absolute -top-6 -left-2 md:-top-10 md:-left-4 font-heading group-hover:text-primary/10 transition-colors">
                                     {item.step}
                                 </div>
-                                <div className="relative z-10 pt-8 pl-8">
-                                    <h4 className="text-2xl font-bold text-white mb-4 font-heading">{item.title}</h4>
-                                    <p className="text-gray-400 leading-relaxed">{item.desc}</p>
+                                <div className="relative z-10 pt-6 md:pt-8 pl-6 md:pl-8">
+                                    <h4 className="text-xl md:text-2xl font-bold text-white mb-2 md:mb-4 font-heading">{item.title}</h4>
+                                    <p className="text-gray-400 leading-relaxed text-sm md:text-base">{item.desc}</p>
                                 </div>
                             </div>
                         ))}

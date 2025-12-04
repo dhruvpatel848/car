@@ -103,16 +103,16 @@ const ServiceSlider = () => {
                                         </div>
 
                                         <div>
-                                            <h3 className="text-3xl font-bold text-white mb-2 font-heading group-hover:text-primary transition-colors">
+                                            <h3 className="text-4xl md:text-5xl font-bold text-white mb-3 font-heading group-hover:text-primary transition-colors">
                                                 {service.name}
                                             </h3>
-                                            <p className="text-gray-400 line-clamp-2 mb-6 text-sm">
+                                            <p className="text-gray-300 line-clamp-2 mb-8 text-base md:text-lg">
                                                 {service.description || "Professional detailing service for your car."}
                                             </p>
 
-                                            <div className="w-10 h-10 rounded-full border border-white/30 flex items-center justify-center group-hover:bg-primary group-hover:border-primary transition-all">
-                                                <ArrowRight className="h-4 w-4 text-white" />
-                                            </div>
+                                            <button className="bg-white text-black px-6 py-3 rounded-full font-bold text-sm uppercase tracking-widest hover:bg-primary hover:text-white transition-colors">
+                                                Book Now
+                                            </button>
                                         </div>
                                     </div>
                                 </motion.div>

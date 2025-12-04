@@ -76,10 +76,15 @@ const TrackOrderModal = ({ isOpen, onClose }) => {
                     <div className="bg-darker rounded-xl p-4 border border-gray-700 animate-slideUp">
                         <div className="flex justify-between items-start mb-4">
                             <div>
-                                <h4 className="text-white font-bold">{orderStatus.serviceName}</h4>
-                                <p className="text-gray-400 text-sm">{new Date(orderStatus.createdAt).toLocaleDateString()}</p>
+                                <h4 className="text-white font-bold text-lg">{orderStatus.serviceName}</h4>
+                                <div className="flex items-center gap-2 mt-1">
+                                    <p className="text-gray-400 text-xs">{new Date(orderStatus.createdAt).toLocaleDateString()}</p>
+                                    <span className="bg-primary/20 text-primary text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider border border-primary/30">
+                                        Latest Order
+                                    </span>
+                                </div>
                             </div>
-                            <span className={`font-bold uppercase text-sm ${getStatusColor(orderStatus.status)}`}>
+                            <span className={`font-bold uppercase text-sm px-3 py-1 rounded-full bg-white/5 ${getStatusColor(orderStatus.status)}`}>
                                 {orderStatus.status}
                             </span>
                         </div>
@@ -103,7 +108,7 @@ const TrackOrderModal = ({ isOpen, onClose }) => {
                     </div>
                 )}
             </div>
-        </div>
+        </div >
     );
 };
 

@@ -171,7 +171,17 @@ router.get('/:id', async (req, res) => {
 
         // 2. If not found, try by Phone Number (get latest active order)
         if (!order) {
-            const ordersByPhone = await Order.find({ customerPhone: query }).sort({ createdAt: -1 });
+            let phoneQuery = { customerPhone: query };
+
+            // Flexible Phone Search: Handle prefixes like +91, 0, 91
+            const cleanPhone = query.replace(/\D/g, '');
+            if (cleanPhone.length >= 10) {
+                const last10 = cleanPhone.slice(-10);
+                // Search for phone numbers ending with these last 10 digits
+                phoneQuery = { customerPhone: { $regex: last10 + '$' } };
+            }
+
+            const ordersByPhone = await Order.find(phoneQuery).sort({ createdAt: -1 });
             if (ordersByPhone.length > 0) {
                 order = ordersByPhone[0]; // Return the most recent order
             }
