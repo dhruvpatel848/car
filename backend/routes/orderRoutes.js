@@ -94,11 +94,56 @@ router.post('/verify-payment', async (req, res) => {
 // Create Order (Standard)
 router.post('/', async (req, res) => {
     try {
-        const newOrder = new Order(req.body);
+        // Generate reusable 5-digit ID (10000-99999)
+        let orderId;
+        let isUnique = false;
+        let attempts = 0;
+
+        while (!isUnique && attempts < 50) {
+            orderId = Math.floor(10000 + Math.random() * 90000).toString(); // 10000-99999
+            // Check if this ID is currently active (Pending or Confirmed)
+            const existingOrder = await Order.findOne({
+                orderId,
+                status: { $in: ['Pending', 'Confirmed'] }
+            });
+
+            if (!existingOrder) {
+                isUnique = true;
+            }
+            attempts++;
+        }
+
+        if (!isUnique) {
+            return res.status(500).json({ message: 'High server load, please try again.' });
+        }
+
+        const newOrder = new Order({
+            ...req.body,
+            orderId
+        });
         const savedOrder = await newOrder.save();
         res.status(201).json(savedOrder);
     } catch (err) {
         res.status(400).json({ message: err.message });
+    }
+});
+
+// Update Order Status & Note
+router.put('/:id', async (req, res) => {
+    try {
+        const { status, adminNote } = req.body;
+        const updateData = {};
+        if (status) updateData.status = status;
+        if (adminNote !== undefined) updateData.adminNote = adminNote;
+
+        const updatedOrder = await Order.findByIdAndUpdate(
+            req.params.id,
+            updateData,
+            { new: true }
+        );
+        res.json(updatedOrder);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
     }
 });
 
@@ -115,13 +160,33 @@ router.get('/', async (req, res) => {
     }
 });
 
-// Update Order Status
-router.put('/:id', async (req, res) => {
+// Get Order by Custom ID or Phone (for Tracking)
+router.get('/:id', async (req, res) => {
     try {
-        const updatedOrder = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
-        res.json(updatedOrder);
+        const query = req.params.id;
+        let order;
+
+        // 1. Try by Custom Order ID
+        order = await Order.findOne({ orderId: query });
+
+        // 2. If not found, try by Phone Number (get latest active order)
+        if (!order) {
+            const ordersByPhone = await Order.find({ customerPhone: query }).sort({ createdAt: -1 });
+            if (ordersByPhone.length > 0) {
+                order = ordersByPhone[0]; // Return the most recent order
+            }
+        }
+
+        // 3. If still not found, try by MongoDB _id (fallback)
+        if (!order && query.match(/^[0-9a-fA-F]{24}$/)) {
+            order = await Order.findById(query);
+        }
+
+        if (!order) return res.status(404).json({ message: 'Order not found' });
+
+        res.json(order);
     } catch (err) {
-        res.status(400).json({ message: err.message });
+        res.status(500).json({ message: err.message });
     }
 });
 

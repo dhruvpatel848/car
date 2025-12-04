@@ -52,51 +52,66 @@ const brandsData = [
 
 const carsList = [
     // Hatchback
-    { brand: 'Maruti Suzuki', models: ['Alto', 'WagonR', 'Swift'], segment: 'Hatchback', type: 'hatchback' },
-    { brand: 'Hyundai', models: ['i10', 'i20'], segment: 'Hatchback', type: 'hatchback' },
-    { brand: 'Tata Motors', models: ['Altroz'], segment: 'Hatchback', type: 'hatchback' },
-    { brand: 'Honda', models: ['Jazz'], segment: 'Hatchback', type: 'hatchback' },
-    { brand: 'Volkswagen', models: ['Polo'], segment: 'Hatchback', type: 'hatchback' },
+    { brand: 'Maruti Suzuki', models: ['Alto', 'S-Presso', 'Celerio'], segment: 'Hatchback', type: 'hatchback' },
+    { brand: 'Hyundai', models: ['Santro', 'Grand i10 Nios'], segment: 'Hatchback', type: 'hatchback' },
+    { brand: 'Tata Motors', models: ['Tiago'], segment: 'Hatchback', type: 'hatchback' },
+
+    // Premium Hatchback
+    { brand: 'Maruti Suzuki', models: ['Baleno', 'Swift'], segment: 'Premium Hatchback', type: 'hatchback' },
+    { brand: 'Hyundai', models: ['i20'], segment: 'Premium Hatchback', type: 'hatchback' },
+    { brand: 'Tata Motors', models: ['Altroz'], segment: 'Premium Hatchback', type: 'hatchback' },
+    { brand: 'Toyota', models: ['Glanza'], segment: 'Premium Hatchback', type: 'hatchback' },
 
     // Compact Sedan
     { brand: 'Maruti Suzuki', models: ['Dzire'], segment: 'Compact Sedan', type: 'sedan' },
     { brand: 'Hyundai', models: ['Aura'], segment: 'Compact Sedan', type: 'sedan' },
     { brand: 'Honda', models: ['Amaze'], segment: 'Compact Sedan', type: 'sedan' },
+    { brand: 'Tata Motors', models: ['Tigor'], segment: 'Compact Sedan', type: 'sedan' },
 
     // Mid-size Sedan
     { brand: 'Hyundai', models: ['Verna'], segment: 'Mid-size Sedan', type: 'sedan' },
     { brand: 'Honda', models: ['City'], segment: 'Mid-size Sedan', type: 'sedan' },
     { brand: 'Volkswagen', models: ['Virtus'], segment: 'Mid-size Sedan', type: 'sedan' },
+    { brand: 'Skoda', models: ['Slavia'], segment: 'Mid-size Sedan', type: 'sedan' },
+    { brand: 'Maruti Suzuki', models: ['Ciaz'], segment: 'Mid-size Sedan', type: 'sedan' },
 
     // Executive Sedan
     { brand: 'Skoda', models: ['Octavia', 'Superb'], segment: 'Executive Sedan', type: 'sedan' },
     { brand: 'Toyota', models: ['Camry'], segment: 'Executive Sedan', type: 'sedan' },
 
     // Compact SUV
-    { brand: 'Maruti Suzuki', models: ['Brezza'], segment: 'Compact SUV', type: 'suv' },
-    { brand: 'Hyundai', models: ['Venue'], segment: 'Compact SUV', type: 'suv' },
+    { brand: 'Maruti Suzuki', models: ['Brezza', 'Fronx'], segment: 'Compact SUV', type: 'suv' },
+    { brand: 'Hyundai', models: ['Venue', 'Exter'], segment: 'Compact SUV', type: 'suv' },
+    { brand: 'Tata Motors', models: ['Nexon', 'Punch'], segment: 'Compact SUV', type: 'suv' },
     { brand: 'Kia', models: ['Sonet'], segment: 'Compact SUV', type: 'suv' },
+    { brand: 'Mahindra', models: ['XUV300'], segment: 'Compact SUV', type: 'suv' },
 
     // Mid-size SUV
-    { brand: 'Kia', models: ['Seltos'], segment: 'Mid-size SUV', type: 'suv' },
-    // Add Creta, Grand Vitara if needed, but sticking to user's list mostly
+    { brand: 'Hyundai', models: ['Creta', 'Alcazar'], segment: 'Mid-size SUV', type: 'suv' },
+    { brand: 'Kia', models: ['Seltos', 'Carens'], segment: 'Mid-size SUV', type: 'suv' },
+    { brand: 'Maruti Suzuki', models: ['Grand Vitara'], segment: 'Mid-size SUV', type: 'suv' },
+    { brand: 'Toyota', models: ['Hyryder', 'Innova Crysta'], segment: 'Mid-size SUV', type: 'suv' },
+    { brand: 'Mahindra', models: ['Scorpio N', 'XUV700'], segment: 'Mid-size SUV', type: 'suv' },
+    { brand: 'Tata Motors', models: ['Harrier', 'Safari'], segment: 'Mid-size SUV', type: 'suv' },
 
     // Full-size SUV
-    { brand: 'Mahindra', models: ['XUV700'], segment: 'Full-size SUV', type: 'suv' },
+    { brand: 'Toyota', models: ['Fortuner'], segment: 'Full-size SUV', type: 'suv' },
+    { brand: 'MG', models: ['Gloster'], segment: 'Full-size SUV', type: 'suv' },
 
     // Entry Luxury
-    { brand: 'Mercedes-Benz', models: ['Mercedes A-Class'], segment: 'Entry Luxury', type: 'luxury' },
-    { brand: 'BMW', models: ['BMW 2 Series'], segment: 'Entry Luxury', type: 'luxury' },
+    { brand: 'Mercedes-Benz', models: ['A-Class', 'GLA'], segment: 'Entry Luxury', type: 'luxury' },
+    { brand: 'BMW', models: ['2 Series', 'X1'], segment: 'Entry Luxury', type: 'luxury' },
+    { brand: 'Audi', models: ['Q3', 'A4'], segment: 'Entry Luxury', type: 'luxury' },
 
     // Executive Luxury
-    { brand: 'Audi', models: ['Audi A4'], segment: 'Executive Luxury', type: 'luxury' },
-    { brand: 'BMW', models: ['BMW 3 Series'], segment: 'Executive Luxury', type: 'luxury' },
-    { brand: 'Mercedes-Benz', models: ['Mercedes C-Class'], segment: 'Executive Luxury', type: 'luxury' },
+    { brand: 'Mercedes-Benz', models: ['C-Class', 'GLC'], segment: 'Executive Luxury', type: 'luxury' },
+    { brand: 'BMW', models: ['3 Series', 'X3'], segment: 'Executive Luxury', type: 'luxury' },
+    { brand: 'Audi', models: ['A6', 'Q5'], segment: 'Executive Luxury', type: 'luxury' },
 
     // Premium Luxury
-    { brand: 'Audi', models: ['Audi A6'], segment: 'Premium Luxury', type: 'luxury' },
-    { brand: 'BMW', models: ['BMW 5 Series'], segment: 'Premium Luxury', type: 'luxury' },
-    { brand: 'Mercedes-Benz', models: ['Mercedes E-Class'], segment: 'Premium Luxury', type: 'luxury' }
+    { brand: 'Mercedes-Benz', models: ['E-Class', 'GLE', 'S-Class', 'GLS'], segment: 'Premium Luxury', type: 'luxury' },
+    { brand: 'BMW', models: ['5 Series', 'X5', '7 Series', 'X7'], segment: 'Premium Luxury', type: 'luxury' },
+    { brand: 'Audi', models: ['Q7', 'Q8'], segment: 'Premium Luxury', type: 'luxury' }
 ];
 
 const carTypeImages = {
@@ -110,50 +125,61 @@ const servicesData = [
     {
         title: 'Basic Wash',
         description: 'Exterior wash, Wheel cleaning, Drying',
-        basePrice: 499,
+        basePrice: 4991,
         pricingRules: {
-            'Hatchback': 499,
-            'Compact Sedan': 1001, // User provided 1001, likely means 100 extra? Or 1001 total? 
-            // Wait, user said: Baseline = Hatchback (499). Compact Sedan 1001. 
-            // If Baseline is 499, then 1001 is likely +100.1? Or +100?
-            // "Compact Sedan 1001" -> 1001 / 10 = 100.1 -> 100 extra?
-            // Or is it the TOTAL price? 
-            // "Hatchback 0" -> +0. "Compact Sedan 1001" -> +100. "Compact SUV 2001" -> +200. "Entry Luxury 4002" -> +400.
-            // Yes, these look like increments (with footnote digits).
-            // So: Compact Sedan = 499 + 100 = 599.
-            // Let's store the TOTAL price for simplicity in the rules.
-            'Compact Sedan': 499 + 100,
-            'Compact SUV': 499 + 200,
-            'Entry Luxury': 499 + 400
+            'Hatchback': 4991,
+            'Premium Hatchback': 5491,
+            'Compact Sedan': 5992,
+            'Mid-size Sedan': 6492,
+            'Executive Sedan': 6992,
+            'Compact SUV': 6992,
+            'Mid-size SUV': 7992,
+            'Full-size SUV': 8992,
+            'Entry Luxury': 8993,
+            'Executive Luxury': 10993,
+            'Premium Luxury': 12993
         },
-        features: ['Exterior foam wash', 'Tyre dressing', 'Window cleaning'],
+        features: ['Exterior wash', 'Wheel cleaning', 'Drying', 'Tyre dressing'],
         image: 'https://images.unsplash.com/photo-1601362840469-51e4d8d58785?auto=format&fit=crop&q=80&w=1000'
     },
     {
         title: 'Deluxe Wash',
         description: 'Exterior + Interior cleaning',
-        basePrice: 899,
+        basePrice: 8991,
         pricingRules: {
-            'Hatchback': 899,
-            'Mid-size Sedan': 899 + 100, // 1001 -> 100
-            'Mid-size SUV': 899 + 300,   // 3002 -> 300
-            'Executive Luxury': 899 + 900 // 9002 -> 900
+            'Hatchback': 8991,
+            'Premium Hatchback': 9491,
+            'Compact Sedan': 9491,
+            'Mid-size Sedan': 9992,
+            'Executive Sedan': 10992,
+            'Compact SUV': 10992,
+            'Mid-size SUV': 11993,
+            'Full-size SUV': 13993,
+            'Entry Luxury': 14993,
+            'Executive Luxury': 17993,
+            'Premium Luxury': 20993
         },
-        features: ['Interior vacuuming', 'Dashboard polishing', 'Mat cleaning'],
+        features: ['Foam wash', 'Interior vacuuming', 'Dashboard cleaning', 'Wheel deep clean'],
         image: 'https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=80&w=1000'
     },
     {
         title: 'Premium Wash',
         description: 'Complete detailing package',
-        basePrice: 1499,
+        basePrice: 12991,
         pricingRules: {
-            'Hatchback': 1499, // Assuming Hatchback base
-            'Premium Hatchback': 1499,
-            'Executive Sedan': 1499 + 500, // 5001 -> 500
-            'Full-size SUV': 1499 + 1000,  // 10002 -> 1000
-            'Premium Luxury': 1499 + 2000  // 20003 -> 2000
+            'Hatchback': 12991,
+            'Premium Hatchback': 14991,
+            'Compact Sedan': 16991,
+            'Mid-size Sedan': 18491,
+            'Executive Sedan': 19992,
+            'Compact SUV': 21992,
+            'Mid-size SUV': 23492,
+            'Full-size SUV': 24993,
+            'Entry Luxury': 29993,
+            'Executive Luxury': 32493,
+            'Premium Luxury': 34994
         },
-        features: ['Paint protection', 'Engine bay wash', 'Leather conditioning'],
+        features: ['Clay bar treatment', 'Waxing', 'Interior shampooing', 'Dashboard polishing', 'Leather treatment', 'Alloy polishing'],
         image: 'https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=80&w=1000'
     }
 ];

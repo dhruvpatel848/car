@@ -1,4 +1,3 @@
-```javascript
 const mongoose = require('mongoose');
 
 const carModelSchema = new mongoose.Schema({
@@ -14,4 +13,3 @@ const carModelSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 module.exports = mongoose.model('CarModel', carModelSchema);
-```

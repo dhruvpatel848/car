@@ -4,6 +4,7 @@ const orderSchema = new mongoose.Schema({
     customerName: { type: String, required: true },
     customerEmail: { type: String, required: true },
     customerPhone: { type: String, required: true },
+    orderId: { type: String, unique: true }, // Random 5-digit ID
 
     // Car Details
     carDetails: {
@@ -31,6 +32,7 @@ const orderSchema = new mongoose.Schema({
     razorpayPaymentId: { type: String },
 
     status: { type: String, enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled'], default: 'Pending' },
+    adminNote: { type: String }
 }, { timestamps: true });
 
 module.exports = mongoose.model('Order', orderSchema);

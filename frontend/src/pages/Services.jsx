@@ -14,14 +14,11 @@ const Services = () => {
     const navigate = useNavigate();
 
     useEffect(() => {
-        // Only open if NO model is selected
+        // Redirect to Home if no model is selected
         if (!selectedModel) {
-            const timer = setTimeout(() => {
-                openCarModal();
-            }, 500);
-            return () => clearTimeout(timer);
+            navigate('/');
         }
-    }, [selectedModel, openCarModal]);
+    }, [selectedModel, navigate]);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -42,17 +39,41 @@ const Services = () => {
         fetchData();
     }, [city]);
 
+    const [settings, setSettings] = useState({});
+
+    useEffect(() => {
+        const fetchSettings = async () => {
+            try {
+                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                const res = await axios.get(`${API_URL}/api/settings`);
+                setSettings(res.data || {});
+            } catch (err) {
+                console.error(err);
+            }
+        };
+        fetchSettings();
+    }, []);
+
     const getDynamicPrice = (service) => {
         if (!selectedModel || !selectedModel.segment) return service.basePrice;
+
+        // 1. Check specific pricing rule
         if (service.pricingRules && service.pricingRules[selectedModel.segment]) {
             return service.pricingRules[selectedModel.segment];
         }
+
+        // 2. Fallback to global segment charge
+        const segmentKey = `charge_${selectedModel.segment.replace(/ /g, '_')}`;
+        if (settings[segmentKey]) {
+            return service.basePrice + settings[segmentKey];
+        }
+
         return service.basePrice;
     };
 
     const handleBookNow = (service) => {
         if (!selectedModel) {
-            openCarModal();
+            navigate('/');
         } else {
             const finalPrice = getDynamicPrice(service);
             navigate('/booking', { state: { service: { ...service, price: finalPrice } } });

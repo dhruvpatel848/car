@@ -40,6 +40,25 @@ router.post('/seed', async (req, res) => {
     }
 });
 
+// Bulk update settings
+router.put('/', async (req, res) => {
+    try {
+        const updates = req.body;
+        const results = {};
+        for (const [key, value] of Object.entries(updates)) {
+            const setting = await Settings.findOneAndUpdate(
+                { key },
+                { value },
+                { upsert: true, new: true }
+            );
+            results[key] = setting.value;
+        }
+        res.json(results);
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // Update a setting
 router.put('/:key', async (req, res) => {
     try {

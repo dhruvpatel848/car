@@ -26,6 +26,16 @@ router.post('/brands', async (req, res) => {
     }
 });
 
+// Update a brand
+router.put('/brands/:id', async (req, res) => {
+    try {
+        const updatedBrand = await CarBrand.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updatedBrand);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
+    }
+});
+
 // Delete a brand
 router.delete('/brands/:id', async (req, res) => {
     try {
@@ -47,6 +57,16 @@ router.get('/models/:brandId', async (req, res) => {
         res.json(models);
     } catch (err) {
         res.status(500).json({ message: err.message });
+    }
+});
+
+// Update a model
+router.put('/models/:id', async (req, res) => {
+    try {
+        const updatedModel = await CarModel.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        res.json(updatedModel);
+    } catch (err) {
+        res.status(400).json({ message: err.message });
     }
 });
 

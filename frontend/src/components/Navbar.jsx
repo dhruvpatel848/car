@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, Search, MapPin, Calendar } from 'lucide-react';
+import { Menu, X, Search, MapPin, Calendar, Clock, Car } from 'lucide-react';
 import logo from '../assets/logo.png';
 import { useLocationContext } from '../context/LocationContext';
 import SlotCheckerModal from './SlotCheckerModal';
+import TrackOrderModal from './TrackOrderModal';
 
 import { useCarSelection } from '../context/CarSelectionContext';
 
@@ -11,9 +12,10 @@ const Navbar = () => {
     const [isOpen, setIsOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
+    const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
     const location = useLocation();
     const { city, openLocationModal } = useLocationContext();
-    const { openCarModal } = useCarSelection();
+    const { openCarModal, selectedModel, selectedBrand } = useCarSelection();
 
     // ... (keep existing useEffect)
 
@@ -66,16 +68,22 @@ const Navbar = () => {
                                 {city || 'Select City'}
                             </button>
 
-                            <button className="text-white hover:text-primary transition-colors">
-                                <Search className="h-5 w-5" />
+                            <button
+                                onClick={openCarModal}
+                                className="flex items-center text-white hover:text-primary transition-colors text-sm font-medium"
+                            >
+                                <Car className="h-4 w-4 mr-1" />
+                                {selectedModel ? `${selectedBrand?.name} ${selectedModel.name}` : 'Select Car'}
                             </button>
 
                             <button
-                                onClick={openCarModal}
-                                className="bg-primary hover:bg-blue-600 text-white px-6 py-2.5 rounded-full font-bold text-sm uppercase tracking-wide transition-all transform hover:scale-105"
+                                onClick={() => setIsTrackOrderOpen(true)}
+                                className="text-white hover:text-primary transition-colors flex items-center text-sm font-medium"
                             >
-                                Book Now
+                                <Clock className="h-4 w-4 mr-1" /> Track Order
                             </button>
+
+
                         </div>
 
                         {/* Mobile Menu Button */}
@@ -110,20 +118,13 @@ const Navbar = () => {
                             >
                                 <Calendar className="h-5 w-5 mr-2" /> Check Slots
                             </button>
-                            <button
-                                onClick={() => {
-                                    setIsOpen(false);
-                                    openCarModal();
-                                }}
-                                className="bg-primary text-white px-8 py-3 rounded-full font-bold uppercase tracking-wide mt-4"
-                            >
-                                Book Now
-                            </button>
+
                         </div>
                     </div>
                 )}
             </nav>
             <SlotCheckerModal isOpen={isSlotModalOpen} onClose={() => setIsSlotModalOpen(false)} />
+            <TrackOrderModal isOpen={isTrackOrderOpen} onClose={() => setIsTrackOrderOpen(false)} />
         </>
     );
 };

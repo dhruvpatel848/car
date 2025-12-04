@@ -1,11 +1,31 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ArrowRight, MousePointer2, CheckCircle, Star, Users, Trophy, Clock, MapPin } from 'lucide-react';
 import { useCarSelection } from '../context/CarSelectionContext';
+import { useLocationContext } from '../context/LocationContext';
+import ServiceSlider from '../components/ServiceSlider';
 
 const Home = () => {
-    const { openCarModal } = useCarSelection();
+    const { openCarModal, selectedModel } = useCarSelection();
+    const { city, openLocationModal } = useLocationContext();
+
+    // Auto-trigger flow on mount
+    useEffect(() => {
+        if (!city) {
+            openLocationModal();
+        } else if (!selectedModel) {
+            openCarModal();
+        }
+    }, [city, selectedModel, openLocationModal, openCarModal]);
+
+    const handleGetStarted = () => {
+        if (!city) {
+            openLocationModal();
+        } else {
+            openCarModal();
+        }
+    };
 
     return (
         <div className="bg-darker min-h-screen font-sans">
@@ -38,7 +58,7 @@ const Home = () => {
 
                         <div className="flex flex-col sm:flex-row justify-center gap-6 mt-10">
                             <button
-                                onClick={openCarModal}
+                                onClick={handleGetStarted}
                                 className="bg-primary hover:bg-blue-600 text-white px-10 py-4 rounded-full font-bold text-sm uppercase tracking-widest transition-all transform hover:scale-105 shadow-lg shadow-primary/30"
                             >
                                 Get Started Now
@@ -68,6 +88,11 @@ const Home = () => {
                     </div>
                 </div>
             </section>
+
+            {/* Service Slider */}
+            <ServiceSlider />
+
+
 
             {/* About Teaser */}
             <section className="py-24 bg-darker relative overflow-hidden">
@@ -168,9 +193,12 @@ const Home = () => {
                 <div className="container-custom relative z-10 text-center">
                     <h2 className="text-4xl md:text-6xl font-bold text-white mb-8 font-heading">Ready to Transform Your Car?</h2>
                     <p className="text-white/80 text-xl mb-10 max-w-2xl mx-auto">Book your appointment today and experience the premium care your vehicle deserves.</p>
-                    <Link to="/booking" className="bg-white text-primary px-10 py-4 rounded-full font-bold text-sm uppercase tracking-widest hover:bg-dark hover:text-white transition-colors shadow-2xl">
-                        Book Appointment
-                    </Link>
+                    <button
+                        onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                        className="bg-white text-primary px-10 py-4 rounded-full font-bold text-sm uppercase tracking-widest hover:bg-dark hover:text-white transition-colors shadow-2xl"
+                    >
+                        Start Booking
+                    </button>
                 </div>
             </section>
         </div>

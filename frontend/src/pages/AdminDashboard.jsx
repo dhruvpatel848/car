@@ -18,7 +18,7 @@ const CarsPanel = () => {
     const [editingBrand, setEditingBrand] = useState(null);
 
     // Model State
-    const [newModel, setNewModel] = useState({ name: '', brand: '', type: 'hatchback', image: '' });
+    const [newModel, setNewModel] = useState({ name: '', brand: '', type: 'hatchback', segment: '', image: '' });
     const [editingModel, setEditingModel] = useState(null);
 
     useEffect(() => {
@@ -142,6 +142,7 @@ const CarsPanel = () => {
             name: model.name,
             brand: model.brand,
             type: model.type,
+            segment: model.segment,
             image: model.image || ''
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -150,7 +151,7 @@ const CarsPanel = () => {
     const handleCancelModelEdit = () => {
         setEditingModel(null);
         // Reset to default state, keeping current brand if possible
-        setNewModel({ name: '', brand: newModel.brand || (brands[0]?._id || ''), type: 'hatchback', image: '' });
+        setNewModel({ name: '', brand: newModel.brand || (brands[0]?._id || ''), type: 'hatchback', segment: '', image: '' });
     };
 
     const handleDeleteModel = async (id, brandId) => {
@@ -279,18 +280,30 @@ const CarsPanel = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-400 text-sm mb-2">Car Type</label>
+                                <label className="block text-gray-400 text-sm mb-2">Segment</label>
                                 <select
-                                    value={newModel.type}
-                                    onChange={(e) => setNewModel({ ...newModel, type: e.target.value })}
+                                    value={newModel.segment || ''}
+                                    onChange={(e) => {
+                                        const seg = e.target.value;
+                                        let type = 'hatchback';
+                                        if (seg.includes('Sedan')) type = 'sedan';
+                                        if (seg.includes('SUV')) type = 'suv';
+                                        if (seg.includes('Luxury')) type = 'luxury';
+                                        setNewModel({ ...newModel, segment: seg, type: type });
+                                    }}
                                     className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                                    required
                                 >
-                                    <option value="hatchback">Hatchback</option>
-                                    <option value="sedan">Sedan</option>
-                                    <option value="suv">SUV</option>
-                                    <option value="luxury">Luxury</option>
+                                    <option value="">Select Segment</option>
+                                    {[
+                                        'Hatchback', 'Premium Hatchback',
+                                        'Compact Sedan', 'Mid-size Sedan', 'Executive Sedan',
+                                        'Compact SUV', 'Mid-size SUV', 'Full-size SUV',
+                                        'Entry Luxury', 'Executive Luxury', 'Premium Luxury'
+                                    ].map(s => <option key={s} value={s}>{s}</option>)}
                                 </select>
                             </div>
+
                             <div>
                                 <label className="block text-gray-400 text-sm mb-2">Image URL</label>
                                 <input
@@ -394,60 +407,40 @@ const PricingPanel = () => {
     return (
         <div>
             <h2 className="text-3xl font-bold mb-6 font-heading">Dynamic Pricing Configuration</h2>
-            <div className="bg-darker p-8 rounded-2xl border border-gray-700 max-w-2xl">
-                <p className="text-gray-400 mb-6">Set additional charges for different car types. These will be added to the base service price.</p>
+            <div className="bg-darker p-8 rounded-2xl border border-gray-700 max-w-4xl">
+                <p className="text-gray-400 mb-6">Set additional charges for different car segments. These will be added to the base service price if no specific pricing rule exists.</p>
                 <form onSubmit={handleSave} className="space-y-6">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <div>
-                            <label className="block text-gray-400 text-sm mb-2">Hatchback Extra Charge (₹)</label>
-                            <input
-                                type="number"
-                                name="charge_hatchback"
-                                value={settings.charge_hatchback}
-                                onChange={handleChange}
-                                className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-gray-400 text-sm mb-2">Sedan Extra Charge (₹)</label>
-                            <input
-                                type="number"
-                                name="charge_sedan"
-                                value={settings.charge_sedan}
-                                onChange={handleChange}
-                                className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-gray-400 text-sm mb-2">SUV Extra Charge (₹)</label>
-                            <input
-                                type="number"
-                                name="charge_suv"
-                                value={settings.charge_suv}
-                                onChange={handleChange}
-                                className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-gray-400 text-sm mb-2">Luxury Extra Charge (₹)</label>
-                            <input
-                                type="number"
-                                name="charge_luxury"
-                                value={settings.charge_luxury}
-                                onChange={handleChange}
-                                className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
-                            />
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                        {[
+                            'Hatchback', 'Premium Hatchback',
+                            'Compact Sedan', 'Mid-size Sedan', 'Executive Sedan',
+                            'Compact SUV', 'Mid-size SUV', 'Full-size SUV',
+                            'Entry Luxury', 'Executive Luxury', 'Premium Luxury'
+                        ].map(segment => {
+                            const key = `charge_${segment.replace(/ /g, '_')}`;
+                            return (
+                                <div key={key}>
+                                    <label className="block text-gray-400 text-sm mb-2">{segment} Extra Charge (₹)</label>
+                                    <input
+                                        type="number"
+                                        name={key}
+                                        value={settings[key] || 0}
+                                        onChange={handleChange}
+                                        className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                                    />
+                                </div>
+                            );
+                        })}
                     </div>
-                    <button
-                        type="submit"
-                        disabled={loading}
-                        className="w-full bg-primary hover:bg-blue-600 text-white py-4 rounded-xl font-bold transition-colors flex items-center justify-center"
-                    >
-                        {loading ? 'Saving...' : 'Save Changes'}
-                    </button>
                 </form>
             </div>
+            <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary hover:bg-blue-600 text-white py-4 rounded-xl font-bold transition-colors flex items-center justify-center"
+            >
+                {loading ? 'Saving...' : 'Save Changes'}
+            </button>
         </div>
     );
 };
@@ -949,10 +942,14 @@ const OrdersPanel = () => {
         }
     };
 
-    const updateStatus = async (id, status) => {
+    const updateStatus = async (id, status, adminNote) => {
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            await axios.put(`${API_URL}/api/orders/${id}`, { status });
+            const payload = {};
+            if (status) payload.status = status;
+            if (adminNote !== undefined) payload.adminNote = adminNote;
+
+            await axios.put(`${API_URL}/api/orders/${id}`, payload);
             fetchOrders();
         } catch (err) {
             console.error(err);
@@ -1114,6 +1111,16 @@ const OrdersPanel = () => {
                                             {selectedOrder.paymentStatus}
                                         </span>
                                     </div>
+                                </div>
+                                <div>
+                                    <h4 className="text-gray-500 text-xs uppercase tracking-wider mb-1">Tracking Note (Visible to User)</h4>
+                                    <textarea
+                                        className="w-full bg-darker border border-gray-700 rounded-lg p-2 text-white text-sm focus:border-primary focus:outline-none"
+                                        rows="3"
+                                        placeholder="Add details about the order status..."
+                                        defaultValue={selectedOrder.adminNote || ''}
+                                        onBlur={(e) => updateStatus(selectedOrder._id, undefined, e.target.value)}
+                                    />
                                 </div>
                             </div>
                         </div>

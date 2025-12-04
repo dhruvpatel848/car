@@ -1,0 +1,121 @@
+{
+  "headers": [
+    "Car Category",
+    "Car Name ",
+    "Segment",
+    "Service Type",
+    "Service",
+    "What's Included",
+    "Starting Price (?)"
+  ],
+  "rows": [
+    [
+      "Hatchback",
+      "Alto, WagonR, Swift, i10",
+      "Hatchback",
+      "Basic Wash",
+      "Exterior Wash",
+      "Exterior wash, Wheel cleaning, Drying",
+      4991
+    ],
+    [
+      "Hatchback",
+      "Baleno, i20, Altroz, Jazz",
+      "Hatchback",
+      "Deluxe Wash",
+      "Exterior + Interior",
+      "Foam wash, Interior vacuuming, Dashboard cleaning, Wheel deep clean",
+      8991
+    ],
+    [
+      "Hatchback",
+      "Polo, Altroz XZ+, Baleno Alpha",
+      "Premium Hatchback",
+      "Premium Wash",
+      "Complete Detailing",
+      "Clay bar treatment, Waxing, Interior shampooing, Dashboard polishing",
+      14991
+    ],
+    [
+      "Sedan",
+      "Dzire, Amaze, Aura",
+      "Compact Sedan",
+      "Basic Wash",
+      "Exterior Wash",
+      "Exterior wash, Wheel cleaning, Drying",
+      5992
+    ],
+    [
+      "Sedan",
+      "City, Verna, Ciaz, Virtus",
+      "Mid-size Sedan",
+      "Deluxe Wash",
+      "Exterior + Interior",
+      "Foam wash, Interior vacuuming, Dashboard cleaning, Wheel deep clean",
+      9992
+    ],
+    [
+      "Sedan",
+      "Superb, Octavia, Camry",
+      "Executive Sedan",
+      "Premium Wash",
+      "Complete Detailing",
+      "Clay bar treatment, Waxing, Leather cleaning, Alloy polishing",
+      19992
+    ],
+    [
+      "SUV",
+      "Brezza, Venue, Sonet",
+      "Compact SUV",
+      "Basic Wash",
+      "Exterior Wash",
+      "Exterior wash, Wheel cleaning, Drying",
+      6992
+    ],
+    [
+      "SUV",
+      "Creta, Seltos, Kushaq",
+      "Mid-size SUV",
+      "Deluxe Wash",
+      "Exterior + Interior",
+      "Foam wash, Interior vacuuming, Dashboard cleaning, Wheel deep clean",
+      11993
+    ],
+    [
+      "SUV",
+      "Fortuner, Endeavour, XUV700",
+      "Full-size SUV",
+      "Premium Wash",
+      "Complete Detailing",
+      "Clay bar treatment, Waxing, Leather treatment, Alloy polishing",
+      24993
+    ],
+    [
+      "Luxury",
+      "Mercedes A-Class, BMW 2 Series",
+      "Entry Luxury",
+      "Basic Wash",
+      "Exterior Wash",
+      "pH neutral wash, Wheel cleaning, Drying",
+      8993
+    ],
+    [
+      "Luxury",
+      "Mercedes C-Class, BMW 3 Series, Audi A4",
+      "Executive Luxury",
+      "Deluxe Wash",
+      "Exterior + Interior",
+      "Foam wash, Leather conditioning, Dashboard polishing, Alloy cleaning",
+      17993
+    ],
+    [
+      "Luxury",
+      "Mercedes E-Class, BMW 5 Series, Audi A6",
+      "Premium Luxury",
+      "Premium Wash",
+      "Complete Detailing",
+      "Clay bar treatment, Nano ceramic coating, Leather treatment, Alloy polishing",
+      34994
+    ]
+  ]
+}
