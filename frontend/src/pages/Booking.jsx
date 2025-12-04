@@ -158,8 +158,51 @@ const Booking = () => {
         });
     };
 
+    const [errors, setErrors] = useState({});
+
+    const validateForm = () => {
+        const newErrors = {};
+        const phoneRegex = /^\d{10}$/;
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        const zipRegex = /^\d{6}$/;
+
+        if (!formData.serviceId) newErrors.serviceId = "Please select a service";
+
+        if (!formData.serviceId) newErrors.serviceId = "Please select a service";
+        if (!formData.name.trim()) newErrors.name = "Full Name is required";
+        if (!formData.phone.trim()) {
+            newErrors.phone = "Phone Number is required";
+        } else if (!phoneRegex.test(formData.phone)) {
+            newErrors.phone = "Phone Number must be exactly 10 digits";
+        }
+        if (!formData.email.trim()) {
+            newErrors.email = "Email Address is required";
+        } else if (!emailRegex.test(formData.email)) {
+            newErrors.email = "Invalid Email Address";
+        }
+        if (!formData.plateNumber.trim()) newErrors.plateNumber = "Plate Number is required";
+        if (!formData.date) newErrors.date = "Date is required";
+        if (!formData.timeSlot) newErrors.timeSlot = "Time Slot is required";
+        if (!formData.address.trim()) newErrors.address = "Address is required";
+        if (!formData.city.trim()) newErrors.city = "City is required";
+        if (!formData.zip.trim()) {
+            newErrors.zip = "ZIP Code is required";
+        } else if (!zipRegex.test(formData.zip)) {
+            newErrors.zip = "ZIP Code must be exactly 6 digits";
+        }
+
+        setErrors(newErrors);
+        return Object.keys(newErrors).length === 0;
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (!validateForm()) {
+            // Scroll to top or first error could be added here
+            return;
+        }
+
         setLoading(true);
         setError('');
 
@@ -244,7 +287,7 @@ const Booking = () => {
             <div className="container-custom max-w-4xl px-4">
                 <h1 className="text-2xl md:text-3xl font-bold mb-6 md:mb-8 font-heading text-center">Complete Your Booking</h1>
 
-                <form onSubmit={handleSubmit} className="bg-dark border border-gray-800 rounded-2xl p-4 md:p-10 shadow-2xl space-y-6 md:space-y-8">
+                <form onSubmit={handleSubmit} className="bg-dark border border-gray-800 rounded-2xl p-4 md:p-10 shadow-2xl space-y-6 md:space-y-8" noValidate>
 
                     {error && <div className="bg-red-500/10 text-red-500 p-4 rounded-xl border border-red-500/50 text-sm">{error}</div>}
 
@@ -254,17 +297,18 @@ const Booking = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             {!location.state?.service && (
                                 <div>
-                                    <label className="block text-gray-400 text-sm mb-2">Select Service</label>
+                                    <label className="block text-gray-400 text-sm mb-2">Select Service <span className="text-red-500">*</span></label>
                                     <select
                                         name="serviceId"
                                         value={formData.serviceId}
                                         onChange={handleServiceChange}
-                                        className="w-full bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-white focus:border-primary focus:outline-none text-base"
+                                        className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none text-base ${errors.serviceId ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
                                         required
                                     >
                                         <option value="">-- Choose Service --</option>
                                         {services.map(s => <option key={s._id} value={s._id}>{s.title}</option>)}
                                     </select>
+                                    {errors.serviceId && <p className="text-red-500 text-xs mt-1">{errors.serviceId}</p>}
                                 </div>
                             )}
                             <div className="bg-darker p-4 rounded-xl border border-gray-700">
@@ -280,7 +324,7 @@ const Booking = () => {
                         <h2 className="text-lg md:text-xl font-bold mb-3 md:mb-4 flex items-center text-primary"><Car className="mr-2 h-5 w-5" /> Car Details</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                             <div className="flex flex-col">
-                                <label className="block text-gray-400 text-sm mb-2">Car Model</label>
+                                <label className="block text-gray-400 text-sm mb-2">Car Model <span className="text-red-500">*</span></label>
                                 <div className="w-full bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-white flex items-center justify-between flex-1 min-h-[50px]">
                                     <div>
                                         <span className="block font-bold text-base md:text-lg">{selectedBrand?.name} {selectedModel?.name}</span>
@@ -291,7 +335,14 @@ const Booking = () => {
                             </div>
                             <div className="flex flex-col">
                                 <label className="block text-gray-400 text-sm mb-2">Plate Number <span className="text-red-500">*</span></label>
-                                <input name="plateNumber" placeholder="e.g. GJ-05-AB-1234" value={formData.plateNumber} onChange={handleChange} required className="w-full bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-white focus:border-primary focus:outline-none h-full min-h-[50px] text-base" />
+                                <input
+                                    name="plateNumber"
+                                    placeholder="e.g. GJ-05-AB-1234"
+                                    value={formData.plateNumber}
+                                    onChange={handleChange}
+                                    className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none h-full min-h-[50px] text-base ${errors.plateNumber ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
+                                />
+                                {errors.plateNumber && <p className="text-red-500 text-xs mt-1">{errors.plateNumber}</p>}
                             </div>
                         </div>
                     </section>
@@ -300,9 +351,40 @@ const Booking = () => {
                     <section>
                         <h2 className="text-lg md:text-xl font-bold mb-3 md:mb-4 flex items-center text-primary"><User className="mr-2 h-5 w-5" /> Personal Info</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                            <input name="name" placeholder="Full Name" value={formData.name} onChange={handleChange} required className="bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-white focus:border-primary focus:outline-none text-base" />
-                            <input name="phone" type="tel" placeholder="Phone Number" value={formData.phone} onChange={handleChange} required className="bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-white focus:border-primary focus:outline-none text-base" />
-                            <input name="email" type="email" placeholder="Email Address" value={formData.email} onChange={handleChange} required className="bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-white focus:border-primary focus:outline-none md:col-span-2 text-base" />
+                            <div>
+                                <input
+                                    name="name"
+                                    placeholder="Full Name"
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none text-base ${errors.name ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
+                                />
+                                {errors.name && <p className="text-red-500 text-xs mt-1">{errors.name}</p>}
+                            </div>
+                            <div>
+                                <input
+                                    name="phone"
+                                    type="tel"
+                                    placeholder="Phone Number"
+                                    value={formData.phone}
+                                    onChange={handleChange}
+                                    className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none text-base ${errors.phone ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
+                                />
+                                {errors.phone && <p className="text-red-500 text-xs mt-1">{errors.phone}</p>}
+                            </div>
+                            <div className="md:col-span-2">
+                                <input
+                                    id="email-input"
+                                    name="email"
+                                    type="email"
+                                    autoComplete="email"
+                                    placeholder="Email Address"
+                                    value={formData.email}
+                                    onChange={handleChange}
+                                    className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none text-base ${errors.email ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
+                                />
+                                {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
+                            </div>
                         </div>
                     </section>
 
@@ -310,28 +392,32 @@ const Booking = () => {
                     <section>
                         <h2 className="text-lg md:text-xl font-bold mb-3 md:mb-4 flex items-center text-primary"><CalendarIcon className="mr-2 h-5 w-5" /> Schedule</h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                            <input
-                                type="date"
-                                name="date"
-                                onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                min={new Date().toISOString().split('T')[0]}
-                                required
-                                className="bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-white focus:border-primary focus:outline-none text-base w-full"
-                            />
-                            <select
-                                name="timeSlot"
-                                value={formData.timeSlot}
-                                onChange={handleChange}
-                                required
-                                className="bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-white focus:border-primary focus:outline-none text-base w-full"
-                            >
-                                <option value="">-- Select Time Slot --</option>
-                                {["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM"].map(slot => (
-                                    <option key={slot} value={slot} disabled={bookedSlots.includes(slot)}>
-                                        {slot} {bookedSlots.includes(slot) ? '(Booked)' : ''}
-                                    </option>
-                                ))}
-                            </select>
+                            <div>
+                                <input
+                                    type="date"
+                                    name="date"
+                                    onChange={(e) => setFormData({ ...formData, date: e.target.value })}
+                                    min={new Date().toISOString().split('T')[0]}
+                                    className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none text-base ${errors.date ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
+                                />
+                                {errors.date && <p className="text-red-500 text-xs mt-1">{errors.date}</p>}
+                            </div>
+                            <div>
+                                <select
+                                    name="timeSlot"
+                                    value={formData.timeSlot}
+                                    onChange={handleChange}
+                                    className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none text-base ${errors.timeSlot ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
+                                >
+                                    <option value="">-- Select Time Slot --</option>
+                                    {["09:00 AM", "10:00 AM", "11:00 AM", "12:00 PM", "01:00 PM", "02:00 PM", "03:00 PM", "04:00 PM", "05:00 PM", "06:00 PM"].map(slot => (
+                                        <option key={slot} value={slot} disabled={bookedSlots.includes(slot)}>
+                                            {slot} {bookedSlots.includes(slot) ? '(Booked)' : ''}
+                                        </option>
+                                    ))}
+                                </select>
+                                {errors.timeSlot && <p className="text-red-500 text-xs mt-1">{errors.timeSlot}</p>}
+                            </div>
                         </div>
                     </section>
 
@@ -352,10 +438,38 @@ const Booking = () => {
                                 )}
                             </button>
                         </div>
-                        <textarea name="address" placeholder="Full Address" value={formData.address} onChange={handleChange} required rows="2" className="w-full bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-white focus:border-primary focus:outline-none mb-4 text-base" />
+                        <div>
+                            <textarea
+                                name="address"
+                                placeholder="Full Address"
+                                value={formData.address}
+                                onChange={handleChange}
+                                rows="2"
+                                className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none mb-4 text-base ${errors.address ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
+                            />
+                            {errors.address && <p className="text-red-500 text-xs mt-1 -translate-y-3">{errors.address}</p>}
+                        </div>
                         <div className="grid grid-cols-2 gap-4 md:gap-6">
-                            <input name="city" placeholder="City" value={formData.city} onChange={handleChange} required className="bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-white focus:border-primary focus:outline-none text-base" />
-                            <input name="zip" placeholder="ZIP Code" value={formData.zip} onChange={handleChange} required className="bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-white focus:border-primary focus:outline-none text-base" />
+                            <div>
+                                <input
+                                    name="city"
+                                    placeholder="City"
+                                    value={formData.city}
+                                    onChange={handleChange}
+                                    className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none text-base ${errors.city ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
+                                />
+                                {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
+                            </div>
+                            <div>
+                                <input
+                                    name="zip"
+                                    placeholder="ZIP Code"
+                                    value={formData.zip}
+                                    onChange={handleChange}
+                                    className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none text-base ${errors.zip ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
+                                />
+                                {errors.zip && <p className="text-red-500 text-xs mt-1">{errors.zip}</p>}
+                            </div>
                         </div>
                     </section>
 

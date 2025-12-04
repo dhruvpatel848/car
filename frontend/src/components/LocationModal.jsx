@@ -79,7 +79,7 @@ const LocationModal = () => {
                     initial={{ scale: 0.9, opacity: 0 }}
                     animate={{ scale: 1, opacity: 1 }}
                     exit={{ scale: 0.9, opacity: 0 }}
-                    className="bg-dark border border-gray-800 rounded-2xl p-8 w-full max-w-md relative z-10 shadow-2xl"
+                    className="bg-dark border border-gray-800 rounded-2xl p-8 w-full max-w-md relative z-10 shadow-2xl max-h-[80vh] overflow-y-auto"
                 >
                     {localStorage.getItem('userCity') && (
                         <button

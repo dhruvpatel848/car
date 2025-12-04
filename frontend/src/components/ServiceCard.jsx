@@ -71,6 +71,7 @@ const ServiceCard = ({ service, onBook }) => {
 
                     <button
                         onClick={onBook}
+                        aria-label={`Book ${service.title}`}
                         className="w-full bg-white text-darker font-bold py-4 rounded-xl hover:bg-primary hover:text-white transition-all flex items-center justify-center group/btn"
                     >
                         Book Now
