@@ -109,20 +109,43 @@ const Navbar = () => {
                                     {item}
                                 </Link>
                             ))}
-                            <button
-                                onClick={() => {
-                                    setIsOpen(false);
-                                    setIsSlotModalOpen(true);
-                                }}
-                                className="flex items-center text-white hover:text-primary font-medium"
-                            >
-                                <Calendar className="h-5 w-5 mr-2" /> Check Slots
-                            </button>
+                            <Calendar className="h-5 w-5 mr-2" /> Check Slots
+                        </button>
 
-                        </div>
+                        <button
+                            onClick={() => {
+                                setIsOpen(false);
+                                openLocationModal();
+                            }}
+                            className="flex items-center text-white hover:text-primary font-medium"
+                        >
+                            <MapPin className="h-5 w-5 mr-2" /> {city || 'Select City'}
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                setIsOpen(false);
+                                openCarModal();
+                            }}
+                            className="flex items-center text-white hover:text-primary font-medium"
+                        >
+                            <Car className="h-5 w-5 mr-2" /> {selectedModel ? `${selectedBrand?.name} ${selectedModel.name}` : 'Select Car'}
+                        </button>
+
+                        <button
+                            onClick={() => {
+                                setIsOpen(false);
+                                setIsTrackOrderOpen(true);
+                            }}
+                            className="flex items-center text-white hover:text-primary font-medium"
+                        >
+                            <Clock className="h-5 w-5 mr-2" /> Track Order
+                        </button>
+
+                    </div>
                     </div>
                 )}
-            </nav>
+        </nav >
             <SlotCheckerModal isOpen={isSlotModalOpen} onClose={() => setIsSlotModalOpen(false)} />
             <TrackOrderModal isOpen={isTrackOrderOpen} onClose={() => setIsTrackOrderOpen(false)} />
         </>
