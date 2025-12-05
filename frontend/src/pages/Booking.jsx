@@ -23,7 +23,7 @@ const Booking = () => {
         basePrice: location.state?.service?.price || 0,
 
         // Car
-        plateNumber: '',
+
 
         // Personal
         name: '',
@@ -180,7 +180,7 @@ const Booking = () => {
         } else if (!emailRegex.test(formData.email)) {
             newErrors.email = "Invalid Email Address";
         }
-        if (!formData.plateNumber.trim()) newErrors.plateNumber = "Plate Number is required";
+
         if (!formData.date) newErrors.date = "Date is required";
         if (!formData.timeSlot) newErrors.timeSlot = "Time Slot is required";
         if (!formData.address.trim()) newErrors.address = "Address is required";
@@ -223,7 +223,7 @@ const Booking = () => {
                     make: selectedBrand?.name,
                     model: selectedModel?.name,
                     year: new Date().getFullYear(),
-                    plateNumber: formData.plateNumber,
+                    plateNumber: "N/A",
                     type: carType
                 },
                 address: `${formData.address}, ${formData.city} - ${formData.zip}`,
@@ -333,17 +333,7 @@ const Booking = () => {
                                     <button type="button" onClick={openCarModal} className="text-xs text-primary hover:underline px-2 py-1">Change</button>
                                 </div>
                             </div>
-                            <div className="flex flex-col">
-                                <label className="block text-gray-400 text-sm mb-2">Plate Number <span className="text-red-500">*</span></label>
-                                <input
-                                    name="plateNumber"
-                                    placeholder="e.g. GJ-05-AB-1234"
-                                    value={formData.plateNumber}
-                                    onChange={handleChange}
-                                    className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none h-full min-h-[50px] text-base ${errors.plateNumber ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
-                                />
-                                {errors.plateNumber && <p className="text-red-500 text-xs mt-1">{errors.plateNumber}</p>}
-                            </div>
+
                         </div>
                     </section>
 

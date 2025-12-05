@@ -53,7 +53,7 @@ const Home = () => {
                             Fueled by Passion
                         </span>
                         <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold text-white mb-6 md:mb-8 leading-tight font-heading">
-                            Experience superior <br className="hidden md:block" /> car detailing
+                            Let Your Car <br className="hidden md:block" /> Glow Again
                         </h1>
 
                         <div className="flex flex-col sm:flex-row justify-center gap-4 md:gap-6 mt-8 md:mt-10">

@@ -11,7 +11,7 @@ const orderSchema = new mongoose.Schema({
         make: { type: String, required: true },
         model: { type: String, required: true },
         year: { type: String, required: true },
-        plateNumber: { type: String, required: true }
+        plateNumber: { type: String }
     },
 
     // Appointment Details

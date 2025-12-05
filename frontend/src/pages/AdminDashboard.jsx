@@ -458,8 +458,16 @@ const ServicesPanel = () => {
         duration: '',
         features: '',
         image: '',
-        availableLocations: []
+        availableLocations: [],
+        pricingRules: {}
     });
+
+    const segments = [
+        'Hatchback', 'Premium Hatchback',
+        'Compact Sedan', 'Mid-size Sedan', 'Executive Sedan',
+        'Compact SUV', 'Mid-size SUV', 'Full-size SUV',
+        'Entry Luxury', 'Executive Luxury', 'Premium Luxury'
+    ];
 
     useEffect(() => {
         fetchServices();
@@ -503,7 +511,7 @@ const ServicesPanel = () => {
             }
             setIsModalOpen(false);
             setEditingService(null);
-            setFormData({ title: '', description: '', price: '', duration: '', features: '', image: '', availableLocations: [] });
+            setFormData({ title: '', description: '', price: '', duration: '', features: '', image: '', availableLocations: [], pricingRules: {} });
             fetchServices();
         } catch (err) {
             console.error(err);
@@ -527,11 +535,12 @@ const ServicesPanel = () => {
         setFormData({
             title: service.title,
             description: service.description,
-            price: service.price,
-            duration: service.duration,
+            price: service.basePrice,
+            duration: service.duration || '45 mins',
             features: service.features.join(', '),
             image: service.image,
-            availableLocations: service.availableLocations.map(loc => typeof loc === 'object' ? loc.city : loc)
+            availableLocations: service.availableLocations.map(loc => typeof loc === 'object' ? loc.city : loc),
+            pricingRules: service.pricingRules || {}
         });
         setIsModalOpen(true);
     };
@@ -547,12 +556,22 @@ const ServicesPanel = () => {
         });
     };
 
+    const handlePricingRuleChange = (segment, price) => {
+        setFormData(prev => ({
+            ...prev,
+            pricingRules: {
+                ...prev.pricingRules,
+                [segment]: Number(price)
+            }
+        }));
+    };
+
     return (
         <div>
             <div className="flex justify-between items-center mb-8">
                 <h2 className="text-2xl font-bold text-white font-heading">Services</h2>
                 <button
-                    onClick={() => { setEditingService(null); setFormData({ title: '', description: '', price: '', duration: '', features: '', image: '', availableLocations: [] }); setIsModalOpen(true); }}
+                    onClick={() => { setEditingService(null); setFormData({ title: '', description: '', price: '', duration: '', features: '', image: '', availableLocations: [], pricingRules: {} }); setIsModalOpen(true); }}
                     className="flex items-center bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
                 >
                     <Plus className="h-5 w-5 mr-2" /> Add Service
@@ -573,8 +592,8 @@ const ServicesPanel = () => {
                             <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
                             <p className="text-gray-400 text-sm mb-4 line-clamp-2">{service.description}</p>
                             <div className="flex justify-between items-center">
-                                <span className="text-primary font-bold text-lg">₹{service.price}</span>
-                                <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">{service.duration}</span>
+                                <span className="text-primary font-bold text-lg">Starts ₹{service.basePrice}</span>
+                                <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">{service.duration || '45 mins'}</span>
                             </div>
                         </div>
                     </div>
@@ -589,7 +608,7 @@ const ServicesPanel = () => {
                         <form onSubmit={handleSubmit} className="space-y-4">
                             <div className="grid grid-cols-2 gap-4">
                                 <input placeholder="Title" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
-                                <input placeholder="Price" type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
+                                <input placeholder="Base Price" type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
                                 <input placeholder="Duration (e.g. 45 mins)" value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
@@ -614,7 +633,25 @@ const ServicesPanel = () => {
                                 </div>
                             </div>
 
-                            <button type="submit" className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-colors">
+                            <div className="border-t border-gray-700 pt-4 mt-4">
+                                <label className="block text-gray-400 text-sm mb-4 font-bold">Segment Pricing Rules (Overrides Base Price)</label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {segments.map(segment => (
+                                        <div key={segment} className="flex flex-col">
+                                            <label className="text-xs text-gray-500 mb-1">{segment}</label>
+                                            <input
+                                                type="number"
+                                                placeholder={`Price for ${segment}`}
+                                                value={formData.pricingRules[segment] || ''}
+                                                onChange={(e) => handlePricingRuleChange(segment, e.target.value)}
+                                                className="bg-darker border border-gray-700 rounded-lg p-2 text-white text-sm focus:border-primary focus:outline-none"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button type="submit" className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-colors mt-6">
                                 {editingService ? 'Update Service' : 'Create Service'}
                             </button>
                         </form>
