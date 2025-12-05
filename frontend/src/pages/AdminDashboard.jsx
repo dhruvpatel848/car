@@ -994,7 +994,7 @@ const OrdersPanel = () => {
                         {Array.isArray(orders) && orders.length > 0 ? (
                             orders.map(order => (
                                 <tr key={order._id} className="text-gray-300 hover:bg-gray-800/30 transition-colors">
-                                    <td className="p-4 font-mono text-xs text-gray-500">#{order._id.slice(-6)}</td>
+                                    <td className="p-4 font-mono text-xs text-gray-500">#{order.orderId}</td>
                                     <td className="p-4">
                                         <div className="font-bold text-white text-sm">{order.customerName}</div>
                                         <div className="text-xs text-gray-500">{order.customerPhone}</div>
