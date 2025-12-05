@@ -18,7 +18,7 @@ const Contact = () => {
         e.preventDefault();
         const { name, email, subject, message } = formData;
         const text = `*New Inquiry from Website*%0A%0A*Name:* ${name}%0A*Email:* ${email}%0A*Subject:* ${subject}%0A*Message:* ${message}`;
-        const phoneNumber = "919876543210";
+        const phoneNumber = "917984042938";
         window.open(`https://wa.me/${phoneNumber}?text=${text}`, '_blank');
     };
 
@@ -65,7 +65,7 @@ const Contact = () => {
                                     </div>
                                     <div>
                                         <h4 className="text-white font-bold uppercase tracking-wider text-sm mb-2">Headquarters</h4>
-                                        <p className="text-gray-400 font-light leading-relaxed">GLO CAR Detailing Studio,<br />123 Auto Street, Near Grand Mall,<br />Ahmedabad, Gujarat 380001</p>
+                                        <p className="text-gray-400 font-light leading-relaxed">Surat, Gujarat</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start space-x-6">
@@ -74,7 +74,7 @@ const Contact = () => {
                                     </div>
                                     <div>
                                         <h4 className="text-white font-bold uppercase tracking-wider text-sm mb-2">Phone Support</h4>
-                                        <p className="text-gray-400 font-light">+91 98765 43210</p>
+                                        <p className="text-gray-400 font-light">+91 7984042938</p>
                                         <p className="text-gray-500 text-sm mt-1">(Mon-Sat, 9AM - 7PM)</p>
                                     </div>
                                 </div>
@@ -84,7 +84,7 @@ const Contact = () => {
                                     </div>
                                     <div>
                                         <h4 className="text-white font-bold uppercase tracking-wider text-sm mb-2">Email</h4>
-                                        <p className="text-gray-400 font-light">contact@glocar.com</p>
+                                        <p className="text-gray-400 font-light">glocar.services@gmail.com</p>
                                     </div>
                                 </div>
                             </div>
