@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
 import Home from './pages/Home';
@@ -15,7 +15,7 @@ import Contact from './pages/Contact';
 import { LocationProvider } from './context/LocationContext';
 import LocationModal from './components/LocationModal';
 
-import { useLocation } from 'react-router-dom';
+import FloatingWhatsApp from './components/FloatingWhatsApp';
 
 function AppContent() {
   const location = useLocation();
@@ -25,6 +25,7 @@ function AppContent() {
     <div className="flex flex-col min-h-screen">
       {!isAdminRoute && <Navbar />}
       {!isAdminRoute && <LocationModal />}
+      {!isAdminRoute && <FloatingWhatsApp />}
       <main className="flex-grow">
         <Routes>
           <Route path="/" element={<Home />} />
