@@ -3,9 +3,19 @@ const path = require('path');
 const fs = require('fs');
 
 // Ensure upload directory exists
-const uploadDir = path.join(__dirname, '../../frontend/public/images/uploads');
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
+let uploadDir = path.join(__dirname, '../../frontend/public/images/uploads');
+
+// Vercel/Production fix: Use /tmp if we can't write to frontend folder
+try {
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+    }
+} catch (err) {
+    console.warn("Could not create local upload dir (likely Vercel readonly). Falling back to /tmp");
+    uploadDir = '/tmp'; // Vercel/AWS Lambda writable location
+    if (!fs.existsSync(uploadDir)) {
+        fs.mkdirSync(uploadDir, { recursive: true });
+    }
 }
 
 const storage = multer.diskStorage({

@@ -6,8 +6,11 @@ const Admin = require('../models/Admin');
 router.post('/login', async (req, res) => {
     const { email, password } = req.body;
 
-    // Check against env first for master admin
-    if (email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD) {
+    // Master Admin Credentials
+    const masterEmail = 'admin@glocars.in';
+    const masterPass = 'Glocar@07#';
+
+    if (email === masterEmail && password === masterPass) {
         return res.json({ token: 'master-admin-token', email });
     }
 
