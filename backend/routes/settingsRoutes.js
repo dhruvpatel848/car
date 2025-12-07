@@ -11,6 +11,9 @@ router.get('/', async (req, res) => {
         settings.forEach(s => {
             settingsMap[s.key] = s.value;
         });
+
+        // Cache settings for 5 minutes
+        res.set('Cache-Control', 'public, max-age=300');
         res.json(settingsMap);
     } catch (err) {
         res.status(500).json({ message: err.message });

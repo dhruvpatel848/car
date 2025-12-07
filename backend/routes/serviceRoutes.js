@@ -22,6 +22,8 @@ router.get('/', async (req, res) => {
         }
 
         const services = await Service.find(query).populate('availableLocations');
+        // Add Cache-Control header: Cache for 5 minutes (300 seconds)
+        res.set('Cache-Control', 'public, max-age=300');
         res.json(services);
     } catch (err) {
         res.status(500).json({ message: err.message });

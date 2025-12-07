@@ -43,6 +43,7 @@ const ServiceCard = ({ service, onBook }) => {
                     src={service.image}
                     alt={service.title}
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                    loading="lazy"
                 />
                 <div className="absolute top-4 right-4 z-20 bg-dark/80 backdrop-blur-sm px-3 py-1 rounded-full border border-gray-700">
                     <span className="text-primary font-bold font-heading">₹{service.price}</span>

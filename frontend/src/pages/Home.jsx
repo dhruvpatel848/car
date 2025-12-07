@@ -37,6 +37,10 @@ const Home = () => {
                         src="https://images.unsplash.com/photo-1601362840469-51e4d8d58785?auto=format&fit=crop&q=80&w=2000"
                         alt="Car Detailing"
                         className="w-full h-full object-cover"
+                        // Hero image should NOT differ; use eager (default) or high priority if supported, 
+                        // but since user asked for overall speed, explicitly setting eager is good practice for LCP.
+                        loading="eager"
+                        fetchPriority="high"
                     />
                     <div className="absolute inset-0 bg-black/40"></div>
                     <div className="absolute inset-0 bg-gradient-to-t from-darker via-transparent to-transparent"></div>
@@ -103,6 +107,7 @@ const Home = () => {
                                 src="https://images.unsplash.com/photo-1607860108855-64acf2078ed9?auto=format&fit=crop&q=80&w=1000"
                                 alt="Detailing Process"
                                 className="relative shadow-2xl grayscale hover:grayscale-0 transition-all duration-500 w-full rounded-lg md:rounded-none"
+                                loading="lazy"
                             />
                         </div>
                         <div className="order-1 md:order-2">
@@ -185,6 +190,7 @@ const Home = () => {
                         src="https://images.unsplash.com/photo-1619642751034-765dfdf7c58e?auto=format&fit=crop&q=80&w=2000"
                         alt="CTA Background"
                         className="w-full h-full object-cover grayscale opacity-30"
+                        loading="lazy"
                     />
                     <div className="absolute inset-0 bg-primary/90 mix-blend-multiply"></div>
                 </div>
