@@ -63,7 +63,7 @@ const About = () => {
                         <div className="relative">
                             <div className="absolute -inset-4 border-2 border-primary/20 rounded-none transform rotate-6 z-0"></div>
                             <img
-                                src="https://images.unsplash.com/photo-1601362840469-51e4d8d58785?auto=format&fit=crop&q=80&w=800"
+                                src={`/images/about-us.png?v=${Date.now()}`}
                                 className="relative z-10 shadow-2xl w-full object-cover h-[600px] grayscale hover:grayscale-0 transition-all duration-700"
                                 alt="GLO CAR Team at work"
                             />

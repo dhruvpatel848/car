@@ -123,7 +123,8 @@ const CarSelectionModal = () => {
                                 <button
                                     key={item._id}
                                     onClick={() => step === 'brand' ? handleBrandSelect(item) : handleModelSelect(item)}
-                                    className="group flex flex-col items-center p-4 rounded-2xl border border-gray-800 bg-darker hover:border-primary/50 hover:bg-gray-800 transition-all duration-300"
+                                    // Removed border classes: border border-gray-800 hover:border-primary/50
+                                    className="group flex flex-col items-center p-4 rounded-2xl bg-darker hover:bg-gray-800 transition-all duration-300"
                                 >
                                     <div className="w-16 h-16 mb-3 flex items-center justify-center">
                                         {item.logo || item.image ? (

@@ -40,6 +40,7 @@ app.use('/api/locations', locationRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/cars', carRoutes);
+app.use('/api/images', require('./routes/imageRoutes')); // NEW
 
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);

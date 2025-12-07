@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const Service = require('../models/Service');
 
+const upload = require('../middleware/upload');
+
 // Get all services
 router.get('/', async (req, res) => {
     try {
@@ -15,15 +17,12 @@ router.get('/', async (req, res) => {
             if (locDoc) {
                 query.availableLocations = locDoc._id;
             } else {
-                // If location not found, return empty or handle as needed
-                // For now, let's return empty if the requested location doesn't exist
                 return res.json([]);
             }
         }
 
         const services = await Service.find(query).populate('availableLocations');
-        // Add Cache-Control header: Cache for 5 minutes (300 seconds)
-        res.set('Cache-Control', 'public, max-age=300');
+        // Removed Cache-Control to ensure fresh data after updates
         res.json(services);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -31,17 +30,45 @@ router.get('/', async (req, res) => {
 });
 
 // Add a service
-router.post('/', async (req, res) => {
+router.post('/', upload.single('image'), async (req, res) => {
     try {
         const serviceData = { ...req.body };
+        // If file uploaded, use relative web path
+        if (req.file) {
+            serviceData.image = `/images/uploads/${req.file.filename}`;
+        }
 
         // Convert city names to Location IDs
-        if (serviceData.availableLocations && Array.isArray(serviceData.availableLocations)) {
-            const Location = require('../models/Location');
-            const locationDocs = await Location.find({
-                city: { $in: serviceData.availableLocations }
-            });
-            serviceData.availableLocations = locationDocs.map(loc => loc._id);
+        if (serviceData.availableLocations) {
+            // Ensure array (sometimes req.body.array comes as comma string or single val if multipart)
+            let locations = serviceData.availableLocations;
+            if (typeof locations === 'string') {
+                try {
+                    locations = JSON.parse(locations);
+                } catch (e) {
+                    locations = [locations];
+                }
+            }
+
+            if (Array.isArray(locations)) {
+                const Location = require('../models/Location');
+                const locationDocs = await Location.find({
+                    city: { $in: locations }
+                });
+                serviceData.availableLocations = locationDocs.map(loc => loc._id);
+            }
+        }
+
+        // Parse pricingRules if it comes as string
+        if (typeof serviceData.pricingRules === 'string') {
+            try {
+                serviceData.pricingRules = JSON.parse(serviceData.pricingRules);
+            } catch (e) { }
+        }
+
+        // Parse features if it comes as string (should be array)
+        if (typeof serviceData.features === 'string') {
+            serviceData.features = serviceData.features.split(',').map(f => f.trim());
         }
 
         const service = new Service(serviceData);
@@ -54,21 +81,47 @@ router.post('/', async (req, res) => {
 });
 
 // Update a service
-router.put('/:id', async (req, res) => {
+router.put('/:id', upload.single('image'), async (req, res) => {
     try {
         const serviceData = { ...req.body };
 
-        // Convert city names to Location IDs if provided
-        if (serviceData.availableLocations && Array.isArray(serviceData.availableLocations)) {
-            // Check if the array contains strings (city names) or already IDs
-            const needsConversion = serviceData.availableLocations.some(loc => typeof loc === 'string' && !loc.match(/^[0-9a-fA-F]{24}$/));
+        if (req.file) {
+            serviceData.image = `/images/uploads/${req.file.filename}`;
+        }
 
-            if (needsConversion) {
-                const Location = require('../models/Location');
-                const locationDocs = await Location.find({
-                    city: { $in: serviceData.availableLocations }
-                });
-                serviceData.availableLocations = locationDocs.map(loc => loc._id);
+        // Handle availableLocations parsing
+        if (serviceData.availableLocations) {
+            let locations = serviceData.availableLocations;
+            if (typeof locations === 'string') {
+                try { locations = JSON.parse(locations); } catch (e) { locations = [locations]; }
+            }
+
+            if (Array.isArray(locations)) {
+                // Check if need conversion (are they cities?)
+                const needsConversion = locations.some(loc => typeof loc === 'string' && !loc.match(/^[0-9a-fA-F]{24}$/));
+                if (needsConversion) {
+                    const Location = require('../models/Location');
+                    const locationDocs = await Location.find({
+                        city: { $in: locations }
+                    });
+                    serviceData.availableLocations = locationDocs.map(loc => loc._id);
+                } else {
+                    serviceData.availableLocations = locations;
+                }
+            }
+        }
+
+        // Parse pricingRules
+        if (typeof serviceData.pricingRules === 'string') {
+            try { serviceData.pricingRules = JSON.parse(serviceData.pricingRules); } catch (e) { }
+        }
+
+        // Parse features
+        if (typeof serviceData.features === 'string') {
+            if (serviceData.features.startsWith('[')) {
+                try { serviceData.features = JSON.parse(serviceData.features); } catch (e) { }
+            } else {
+                serviceData.features = serviceData.features.split(',').map(f => f.trim());
             }
         }
 

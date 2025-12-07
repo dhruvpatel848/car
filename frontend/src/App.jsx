@@ -53,6 +53,7 @@ function AppContent() {
 }
 
 import { CarSelectionProvider } from './context/CarSelectionContext';
+import { LocationProvider } from './context/LocationContext';
 import CarSelectionModal from './components/CarSelectionModal';
 
 function App() {

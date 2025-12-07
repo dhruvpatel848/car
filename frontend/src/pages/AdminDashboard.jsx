@@ -14,11 +14,11 @@ const CarsPanel = () => {
     const [loading, setLoading] = useState(false);
 
     // Brand State
-    const [newBrand, setNewBrand] = useState({ name: '', logo: '' });
+    const [newBrand, setNewBrand] = useState({ name: '', logo: '', logoFile: null });
     const [editingBrand, setEditingBrand] = useState(null);
 
     // Model State
-    const [newModel, setNewModel] = useState({ name: '', brand: '', type: 'hatchback', segment: '', image: '' });
+    const [newModel, setNewModel] = useState({ name: '', brand: '', type: 'hatchback', segment: '', image: '', imageFile: null });
     const [editingModel, setEditingModel] = useState(null);
 
     useEffect(() => {
@@ -41,7 +41,7 @@ const CarsPanel = () => {
         try {
             setLoading(true);
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            const res = await axios.get(`${API_URL}/api/cars/brands`);
+            const res = await axios.get(`${API_URL}/api/cars/brands?t=${Date.now()}`);
             setBrands(res.data);
         } catch (err) {
             console.error(err);
@@ -54,7 +54,7 @@ const CarsPanel = () => {
         try {
             setLoading(true);
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            const res = await axios.get(`${API_URL}/api/cars/models/${brandId}`);
+            const res = await axios.get(`${API_URL}/api/cars/models/${brandId}?t=${Date.now()}`);
             setModels(res.data);
         } catch (err) {
             console.error(err);
@@ -68,16 +68,29 @@ const CarsPanel = () => {
         e.preventDefault();
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const formData = new FormData();
+            formData.append('name', newBrand.name);
+            if (newBrand.logoFile) {
+                formData.append('logo', newBrand.logoFile);
+            } else {
+                formData.append('logo', newBrand.logo);
+            }
+
+            const config = {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            };
+
             if (editingBrand) {
-                await axios.put(`${API_URL}/api/cars/brands/${editingBrand._id}`, newBrand);
+                await axios.put(`${API_URL}/api/cars/brands/${editingBrand._id}`, formData, config);
                 alert('Brand updated successfully');
             } else {
-                await axios.post(`${API_URL}/api/cars/brands`, newBrand);
+                await axios.post(`${API_URL}/api/cars/brands`, formData, config);
                 alert('Brand added successfully');
             }
-            setNewBrand({ name: '', logo: '' });
+            setNewBrand({ name: '', logo: '', logoFile: null });
             setEditingBrand(null);
             fetchBrands();
+            // Reset file input if possible, or just rely on state reset
         } catch (err) {
             console.error(err);
             alert('Failed to save brand');
@@ -86,13 +99,13 @@ const CarsPanel = () => {
 
     const handleEditBrand = (brand) => {
         setEditingBrand(brand);
-        setNewBrand({ name: brand.name, logo: brand.logo });
+        setNewBrand({ name: brand.name, logo: brand.logo, logoFile: null });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     const handleCancelBrandEdit = () => {
         setEditingBrand(null);
-        setNewBrand({ name: '', logo: '' });
+        setNewBrand({ name: '', logo: '', logoFile: null });
     };
 
     const handleDeleteBrand = async (id) => {
@@ -112,11 +125,27 @@ const CarsPanel = () => {
         e.preventDefault();
         try {
             const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const formData = new FormData();
+            formData.append('name', newModel.name);
+            formData.append('brand', newModel.brand);
+            formData.append('type', newModel.type);
+            formData.append('segment', newModel.segment);
+
+            if (newModel.imageFile) {
+                formData.append('image', newModel.imageFile);
+            } else {
+                formData.append('image', newModel.image);
+            }
+
+            const config = {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            };
+
             if (editingModel) {
-                await axios.put(`${API_URL}/api/cars/models/${editingModel._id}`, newModel);
+                await axios.put(`${API_URL}/api/cars/models/${editingModel._id}`, formData, config);
                 alert('Model updated successfully');
             } else {
-                await axios.post(`${API_URL}/api/cars/models`, newModel);
+                await axios.post(`${API_URL}/api/cars/models`, formData, config);
                 alert('Model added successfully');
             }
 
@@ -126,9 +155,9 @@ const CarsPanel = () => {
             // Reset form but keep brand selected if adding new
             if (editingModel) {
                 setEditingModel(null);
-                setNewModel({ name: '', brand: newModel.brand, type: 'hatchback', image: '' });
+                setNewModel({ name: '', brand: newModel.brand, type: 'hatchback', segment: '', image: '', imageFile: null });
             } else {
-                setNewModel(prev => ({ ...prev, name: '', image: '' }));
+                setNewModel(prev => ({ ...prev, name: '', image: '', imageFile: null }));
             }
         } catch (err) {
             console.error(err);
@@ -143,7 +172,8 @@ const CarsPanel = () => {
             brand: model.brand,
             type: model.type,
             segment: model.segment,
-            image: model.image || ''
+            image: model.image || '',
+            imageFile: null
         });
         window.scrollTo({ top: 0, behavior: 'smooth' });
     };
@@ -151,7 +181,7 @@ const CarsPanel = () => {
     const handleCancelModelEdit = () => {
         setEditingModel(null);
         // Reset to default state, keeping current brand if possible
-        setNewModel({ name: '', brand: newModel.brand || (brands[0]?._id || ''), type: 'hatchback', segment: '', image: '' });
+        setNewModel({ name: '', brand: newModel.brand || (brands[0]?._id || ''), type: 'hatchback', segment: '', image: '', imageFile: null });
     };
 
     const handleDeleteModel = async (id, brandId) => {
@@ -207,13 +237,21 @@ const CarsPanel = () => {
                                 />
                             </div>
                             <div>
-                                <label className="block text-gray-400 text-sm mb-2">Logo URL</label>
+                                <label className="block text-gray-400 text-sm mb-2">Brand Logo</label>
                                 <input
-                                    value={newBrand.logo}
-                                    onChange={(e) => setNewBrand({ ...newBrand, logo: e.target.value })}
-                                    className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
-                                    required
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            setNewBrand({ ...newBrand, logoFile: file, logo: URL.createObjectURL(file) });
+                                        }
+                                    }}
+                                    className="w-full bg-dark border border-gray-700 rounded-xl p-2 text-white text-sm"
                                 />
+                                {newBrand.logo && (
+                                    <img src={newBrand.logo} alt="Preview" className="mt-2 h-16 w-auto object-contain bg-white rounded p-1" />
+                                )}
                             </div>
                             <button type="submit" className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-colors">
                                 {editingBrand ? 'Update Brand' : 'Add Brand'}
@@ -305,12 +343,21 @@ const CarsPanel = () => {
                             </div>
 
                             <div>
-                                <label className="block text-gray-400 text-sm mb-2">Image URL</label>
+                                <label className="block text-gray-400 text-sm mb-2">Car Model Image</label>
                                 <input
-                                    value={newModel.image}
-                                    onChange={(e) => setNewModel({ ...newModel, image: e.target.value })}
-                                    className="w-full bg-dark border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            setNewModel({ ...newModel, imageFile: file, image: URL.createObjectURL(file) });
+                                        }
+                                    }}
+                                    className="w-full bg-dark border border-gray-700 rounded-xl p-2 text-white text-sm"
                                 />
+                                {newModel.image && (
+                                    <img src={newModel.image} alt="Preview" className="mt-2 h-16 w-auto object-cover rounded" />
+                                )}
                             </div>
                             <button type="submit" className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-colors">
                                 {editingModel ? 'Update Model' : 'Add Model'}
@@ -352,6 +399,263 @@ const CarsPanel = () => {
                         ) : (
                             <p className="text-gray-500 text-center py-4">No models found for this brand.</p>
                         )}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+};
+
+// --- SERVICES PANEL ---
+const ServicesPanel = () => {
+    const [services, setServices] = useState([]);
+    const [locations, setLocations] = useState([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [editingService, setEditingService] = useState(null);
+    const [formData, setFormData] = useState({
+        title: '',
+        description: '',
+        price: '',
+        duration: '',
+        features: '',
+        image: null,
+        availableLocations: [],
+        pricingRules: {}
+    });
+    const [previewImage, setPreviewImage] = useState('');
+
+    const segments = [
+        'Hatchback', 'Premium Hatchback',
+        'Compact Sedan', 'Mid-size Sedan', 'Executive Sedan',
+        'Compact SUV', 'Mid-size SUV', 'Full-size SUV',
+        'Entry Luxury', 'Executive Luxury', 'Premium Luxury'
+    ];
+
+    useEffect(() => {
+        fetchServices();
+        fetchLocations();
+    }, []);
+
+    const fetchServices = async () => {
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const res = await axios.get(`${API_URL}/api/services?t=${Date.now()}`);
+            setServices(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const fetchLocations = async () => {
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const res = await axios.get(`${API_URL}/api/locations`);
+            setLocations(res.data);
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+
+            const data = new FormData();
+            data.append('title', formData.title);
+            data.append('description', formData.description);
+            data.append('basePrice', Number(formData.price));
+            data.append('price', Number(formData.price));
+            data.append('duration', formData.duration);
+            data.append('features', formData.features);
+            data.append('availableLocations', JSON.stringify(formData.availableLocations));
+            data.append('pricingRules', JSON.stringify(formData.pricingRules));
+
+            if (formData.image instanceof File) {
+                data.append('image', formData.image);
+            } else if (typeof formData.image === 'string' && formData.image) {
+                data.append('image', formData.image);
+            }
+
+            const config = {
+                headers: { 'Content-Type': 'multipart/form-data' }
+            };
+
+            if (editingService) {
+                await axios.put(`${API_URL}/api/services/${editingService._id}`, data, config);
+            } else {
+                await axios.post(`${API_URL}/api/services`, data, config);
+            }
+            setIsModalOpen(false);
+            setEditingService(null);
+            setFormData({ title: '', description: '', price: '', duration: '', features: '', image: null, availableLocations: [], pricingRules: {} });
+            setPreviewImage('');
+            fetchServices();
+        } catch (err) {
+            console.error(err);
+            alert('Failed to save service');
+        }
+    };
+
+    const handleDelete = async (id) => {
+        if (!window.confirm('Are you sure?')) return;
+        try {
+            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            await axios.delete(`${API_URL}/api/services/${id}`);
+            fetchServices();
+        } catch (err) {
+            console.error(err);
+        }
+    };
+
+    const handleEdit = (service) => {
+        setEditingService(service);
+        setFormData({
+            title: service.title,
+            description: service.description,
+            price: service.basePrice,
+            duration: service.duration || '45 mins',
+            features: service.features.join(', '),
+            image: service.image,
+            availableLocations: service.availableLocations.map(loc => typeof loc === 'object' ? loc.city : loc),
+            pricingRules: service.pricingRules || {}
+        });
+        setPreviewImage(service.image);
+        setIsModalOpen(true);
+    };
+
+    const toggleLocation = (city) => {
+        setFormData(prev => {
+            const current = prev.availableLocations;
+            if (current.includes(city)) {
+                return { ...prev, availableLocations: current.filter(c => c !== city) };
+            } else {
+                return { ...prev, availableLocations: [...current, city] };
+            }
+        });
+    };
+
+    const handlePricingRuleChange = (segment, price) => {
+        setFormData(prev => ({
+            ...prev,
+            pricingRules: {
+                ...prev.pricingRules,
+                [segment]: Number(price)
+            }
+        }));
+    };
+
+    return (
+        <div>
+            <div className="flex justify-between items-center mb-8">
+                <h2 className="text-2xl font-bold text-white font-heading">Services</h2>
+                <button
+                    onClick={() => {
+                        setEditingService(null);
+                        setFormData({ title: '', description: '', price: '', duration: '', features: '', image: null, availableLocations: [], pricingRules: {} });
+                        setPreviewImage('');
+                        setIsModalOpen(true);
+                    }}
+                    className="flex items-center bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
+                >
+                    <Plus className="h-5 w-5 mr-2" /> Add Service
+                </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {services.map(service => (
+                    <div key={service._id} className="bg-dark rounded-2xl border border-gray-800 overflow-hidden group hover:border-primary/50 transition-all">
+                        <div className="h-48 overflow-hidden relative">
+                            <img src={service.image} alt={service.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
+                            <div className="absolute top-2 right-2 flex space-x-2">
+                                <button onClick={() => handleEdit(service)} className="p-2 bg-black/50 backdrop-blur-sm rounded-full text-white hover:bg-primary transition-colors"><Edit className="h-4 w-4" /></button>
+                                <button onClick={() => handleDelete(service._id)} className="p-2 bg-black/50 backdrop-blur-sm rounded-full text-white hover:bg-red-500 transition-colors"><Trash2 className="h-4 w-4" /></button>
+                            </div>
+                        </div>
+                        <div className="p-6">
+                            <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
+                            <p className="text-gray-400 text-sm mb-4 line-clamp-2">{service.description}</p>
+                            <div className="flex justify-between items-center">
+                                <span className="text-primary font-bold text-lg">Starts ₹{service.basePrice}</span>
+                                <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">{service.duration || '45 mins'}</span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            {isModalOpen && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm">
+                    <div className="bg-dark border border-gray-800 rounded-2xl p-8 w-full max-w-2xl relative shadow-2xl max-h-[90vh] overflow-y-auto">
+                        <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white"><X className="h-6 w-6" /></button>
+                        <h3 className="text-2xl font-bold text-white mb-6 font-heading">{editingService ? 'Edit Service' : 'Add New Service'}</h3>
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="grid grid-cols-2 gap-4">
+                                <input placeholder="Title" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
+                                <input placeholder="Base Price" type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
+                            </div>
+                            <div className="grid grid-cols-2 gap-4">
+                                <input placeholder="Duration (e.g. 45 mins)" value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
+                                <div>
+                                    <label className="block text-gray-400 text-sm mb-1">Service Image</label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={e => {
+                                            const file = e.target.files[0];
+                                            if (file) {
+                                                setFormData({ ...formData, image: file });
+                                                setPreviewImage(URL.createObjectURL(file));
+                                            }
+                                        }}
+                                        className="bg-darker border border-gray-700 rounded-xl p-2 text-white w-full text-sm"
+                                    />
+                                    {previewImage && (
+                                        <img src={previewImage} alt="Preview" className="mt-2 h-16 w-auto rounded border border-gray-600" />
+                                    )}
+                                </div>
+                            </div>
+                            <textarea placeholder="Description" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" rows="3" required />
+                            <input placeholder="Features (comma separated)" value={formData.features} onChange={e => setFormData({ ...formData, features: e.target.value })} className="w-full bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
+
+                            <div>
+                                <label className="block text-gray-400 text-sm mb-2">Available Locations</label>
+                                <div className="flex flex-wrap gap-2">
+                                    {locations.map(loc => (
+                                        <button
+                                            key={loc._id}
+                                            type="button"
+                                            onClick={() => toggleLocation(loc.city)}
+                                            className={`px-3 py-1 rounded-full text-sm border transition-colors ${formData.availableLocations.includes(loc.city) ? 'bg-primary border-primary text-white' : 'bg-darker border-gray-700 text-gray-400 hover:border-gray-500'}`}
+                                        >
+                                            {loc.city}
+                                        </button>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <div className="border-t border-gray-700 pt-4 mt-4">
+                                <label className="block text-gray-400 text-sm mb-4 font-bold">Segment Pricing Rules (Overrides Base Price)</label>
+                                <div className="grid grid-cols-2 gap-4">
+                                    {segments.map(segment => (
+                                        <div key={segment} className="flex flex-col">
+                                            <label className="text-xs text-gray-500 mb-1">{segment}</label>
+                                            <input
+                                                type="number"
+                                                placeholder={`Price for ${segment}`}
+                                                value={formData.pricingRules[segment] || ''}
+                                                onChange={(e) => handlePricingRuleChange(segment, e.target.value)}
+                                                className="bg-darker border border-gray-700 rounded-lg p-2 text-white text-sm focus:border-primary focus:outline-none"
+                                            />
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            <button type="submit" className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-colors mt-6">
+                                {editingService ? 'Update Service' : 'Create Service'}
+                            </button>
+                        </form>
                     </div>
                 </div>
             )}
@@ -432,232 +736,15 @@ const PricingPanel = () => {
                             );
                         })}
                     </div>
+                    <button
+                        type="submit"
+                        disabled={loading}
+                        className="w-full bg-primary hover:bg-blue-600 text-white py-4 rounded-xl font-bold transition-colors flex items-center justify-center"
+                    >
+                        {loading ? 'Saving...' : 'Save Changes'}
+                    </button>
                 </form>
             </div>
-            <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-primary hover:bg-blue-600 text-white py-4 rounded-xl font-bold transition-colors flex items-center justify-center"
-            >
-                {loading ? 'Saving...' : 'Save Changes'}
-            </button>
-        </div>
-    );
-};
-
-// --- SERVICES PANEL ---
-const ServicesPanel = () => {
-    const [services, setServices] = useState([]);
-    const [locations, setLocations] = useState([]);
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [editingService, setEditingService] = useState(null);
-    const [formData, setFormData] = useState({
-        title: '',
-        description: '',
-        price: '',
-        duration: '',
-        features: '',
-        image: '',
-        availableLocations: [],
-        pricingRules: {}
-    });
-
-    const segments = [
-        'Hatchback', 'Premium Hatchback',
-        'Compact Sedan', 'Mid-size Sedan', 'Executive Sedan',
-        'Compact SUV', 'Mid-size SUV', 'Full-size SUV',
-        'Entry Luxury', 'Executive Luxury', 'Premium Luxury'
-    ];
-
-    useEffect(() => {
-        fetchServices();
-        fetchLocations();
-    }, []);
-
-    const fetchServices = async () => {
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            const res = await axios.get(`${API_URL}/api/services`);
-            setServices(res.data);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const fetchLocations = async () => {
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            const res = await axios.get(`${API_URL}/api/locations`);
-            setLocations(res.data);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            const payload = {
-                ...formData,
-                features: formData.features.split(',').map(f => f.trim()),
-                price: Number(formData.price)
-            };
-
-            if (editingService) {
-                await axios.put(`${API_URL}/api/services/${editingService._id}`, payload);
-            } else {
-                await axios.post(`${API_URL}/api/services`, payload);
-            }
-            setIsModalOpen(false);
-            setEditingService(null);
-            setFormData({ title: '', description: '', price: '', duration: '', features: '', image: '', availableLocations: [], pricingRules: {} });
-            fetchServices();
-        } catch (err) {
-            console.error(err);
-            alert('Failed to save service');
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure?')) return;
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-            await axios.delete(`${API_URL}/api/services/${id}`);
-            fetchServices();
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const handleEdit = (service) => {
-        setEditingService(service);
-        setFormData({
-            title: service.title,
-            description: service.description,
-            price: service.basePrice,
-            duration: service.duration || '45 mins',
-            features: service.features.join(', '),
-            image: service.image,
-            availableLocations: service.availableLocations.map(loc => typeof loc === 'object' ? loc.city : loc),
-            pricingRules: service.pricingRules || {}
-        });
-        setIsModalOpen(true);
-    };
-
-    const toggleLocation = (city) => {
-        setFormData(prev => {
-            const current = prev.availableLocations;
-            if (current.includes(city)) {
-                return { ...prev, availableLocations: current.filter(c => c !== city) };
-            } else {
-                return { ...prev, availableLocations: [...current, city] };
-            }
-        });
-    };
-
-    const handlePricingRuleChange = (segment, price) => {
-        setFormData(prev => ({
-            ...prev,
-            pricingRules: {
-                ...prev.pricingRules,
-                [segment]: Number(price)
-            }
-        }));
-    };
-
-    return (
-        <div>
-            <div className="flex justify-between items-center mb-8">
-                <h2 className="text-2xl font-bold text-white font-heading">Services</h2>
-                <button
-                    onClick={() => { setEditingService(null); setFormData({ title: '', description: '', price: '', duration: '', features: '', image: '', availableLocations: [], pricingRules: {} }); setIsModalOpen(true); }}
-                    className="flex items-center bg-primary text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors"
-                >
-                    <Plus className="h-5 w-5 mr-2" /> Add Service
-                </button>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {services.map(service => (
-                    <div key={service._id} className="bg-dark rounded-2xl border border-gray-800 overflow-hidden group hover:border-primary/50 transition-all">
-                        <div className="h-48 overflow-hidden relative">
-                            <img src={service.image} alt={service.title} className="w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500" />
-                            <div className="absolute top-2 right-2 flex space-x-2">
-                                <button onClick={() => handleEdit(service)} className="p-2 bg-black/50 backdrop-blur-sm rounded-full text-white hover:bg-primary transition-colors"><Edit className="h-4 w-4" /></button>
-                                <button onClick={() => handleDelete(service._id)} className="p-2 bg-black/50 backdrop-blur-sm rounded-full text-white hover:bg-red-500 transition-colors"><Trash2 className="h-4 w-4" /></button>
-                            </div>
-                        </div>
-                        <div className="p-6">
-                            <h3 className="text-xl font-bold text-white mb-2">{service.title}</h3>
-                            <p className="text-gray-400 text-sm mb-4 line-clamp-2">{service.description}</p>
-                            <div className="flex justify-between items-center">
-                                <span className="text-primary font-bold text-lg">Starts ₹{service.basePrice}</span>
-                                <span className="text-xs text-gray-500 bg-gray-800 px-2 py-1 rounded">{service.duration || '45 mins'}</span>
-                            </div>
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            {isModalOpen && (
-                <div className="fixed inset-0 z-[60] flex items-center justify-center px-4 bg-black/80 backdrop-blur-sm">
-                    <div className="bg-dark border border-gray-800 rounded-2xl p-8 w-full max-w-2xl relative shadow-2xl max-h-[90vh] overflow-y-auto">
-                        <button onClick={() => setIsModalOpen(false)} className="absolute top-4 right-4 text-gray-400 hover:text-white"><X className="h-6 w-6" /></button>
-                        <h3 className="text-2xl font-bold text-white mb-6 font-heading">{editingService ? 'Edit Service' : 'Add New Service'}</h3>
-                        <form onSubmit={handleSubmit} className="space-y-4">
-                            <div className="grid grid-cols-2 gap-4">
-                                <input placeholder="Title" value={formData.title} onChange={e => setFormData({ ...formData, title: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
-                                <input placeholder="Base Price" type="number" value={formData.price} onChange={e => setFormData({ ...formData, price: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
-                            </div>
-                            <div className="grid grid-cols-2 gap-4">
-                                <input placeholder="Duration (e.g. 45 mins)" value={formData.duration} onChange={e => setFormData({ ...formData, duration: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
-                                <input placeholder="Image URL" value={formData.image} onChange={e => setFormData({ ...formData, image: e.target.value })} className="bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
-                            </div>
-                            <textarea placeholder="Description" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" rows="3" required />
-                            <input placeholder="Features (comma separated)" value={formData.features} onChange={e => setFormData({ ...formData, features: e.target.value })} className="w-full bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
-
-                            <div>
-                                <label className="block text-gray-400 text-sm mb-2">Available Locations</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {locations.map(loc => (
-                                        <button
-                                            key={loc._id}
-                                            type="button"
-                                            onClick={() => toggleLocation(loc.city)}
-                                            className={`px-3 py-1 rounded-full text-sm border transition-colors ${formData.availableLocations.includes(loc.city) ? 'bg-primary border-primary text-white' : 'bg-darker border-gray-700 text-gray-400 hover:border-gray-500'}`}
-                                        >
-                                            {loc.city}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <div className="border-t border-gray-700 pt-4 mt-4">
-                                <label className="block text-gray-400 text-sm mb-4 font-bold">Segment Pricing Rules (Overrides Base Price)</label>
-                                <div className="grid grid-cols-2 gap-4">
-                                    {segments.map(segment => (
-                                        <div key={segment} className="flex flex-col">
-                                            <label className="text-xs text-gray-500 mb-1">{segment}</label>
-                                            <input
-                                                type="number"
-                                                placeholder={`Price for ${segment}`}
-                                                value={formData.pricingRules[segment] || ''}
-                                                onChange={(e) => handlePricingRuleChange(segment, e.target.value)}
-                                                className="bg-darker border border-gray-700 rounded-lg p-2 text-white text-sm focus:border-primary focus:outline-none"
-                                            />
-                                        </div>
-                                    ))}
-                                </div>
-                            </div>
-
-                            <button type="submit" className="w-full bg-primary hover:bg-blue-600 text-white py-3 rounded-xl font-bold transition-colors mt-6">
-                                {editingService ? 'Update Service' : 'Create Service'}
-                            </button>
-                        </form>
-                    </div>
-                </div>
-            )}
         </div>
     );
 };

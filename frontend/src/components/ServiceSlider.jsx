@@ -13,7 +13,7 @@ const ServiceSlider = () => {
         const fetchServices = async () => {
             try {
                 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
-                const res = await axios.get(`${API_URL}/api/services`);
+                const res = await axios.get(`${API_URL}/api/services?t=${Date.now()}`);
                 setServices(res.data);
             } catch (err) {
                 console.error("Error fetching services:", err);

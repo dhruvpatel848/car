@@ -26,7 +26,9 @@ const Services = () => {
                 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
                 let url = `${API_URL}/api/services`;
                 if (city) {
-                    url += `?location=${city}`;
+                    url += `?location=${city}&t=${Date.now()}`;
+                } else {
+                    url += `?t=${Date.now()}`;
                 }
                 const servicesRes = await axios.get(url);
                 setServices(servicesRes.data);
