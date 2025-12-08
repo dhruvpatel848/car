@@ -166,16 +166,13 @@ const seedDB = async () => {
             const b = createdBrands.find(cb => cb.name === m.brand);
             if (!b) return null;
 
-            let img = 'generic-sedan.png'; // Default
-            if (m.segment.includes('Hatchback')) img = 'generic-hatchback.png';
-            else if (m.segment.includes('Sedan')) img = 'generic-sedan.png';
-            else if (m.segment.includes('SUV')) img = 'generic-suv.png';
-            else if (m.segment.includes('Luxury')) img = 'generic-luxury.png';
+            // Name-based image assignment
+            const imageName = m.name.toLowerCase().replace(/\s+/g, '-') + '.jpg';
 
             return {
                 ...m,
                 brand: b._id,
-                image: `/images/models/${img}`
+                image: `/images/models/${imageName}`
             };
         }).filter(Boolean);
 
