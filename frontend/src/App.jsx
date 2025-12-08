@@ -2,7 +2,6 @@ import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
-import LocationModal from './components/LocationModal';
 import FloatingWhatsApp from './components/FloatingWhatsApp';
 
 // Lazy load pages
@@ -29,7 +28,7 @@ function AppContent() {
   return (
     <div className="flex flex-col min-h-screen">
       {!isAdminRoute && <Navbar />}
-      {!isAdminRoute && <LocationModal />}
+
       {!isAdminRoute && <FloatingWhatsApp />}
       <main className="flex-grow">
         <Suspense fallback={<PageLoader />}>
@@ -53,19 +52,16 @@ function AppContent() {
 }
 
 import { CarSelectionProvider } from './context/CarSelectionContext';
-import { LocationProvider } from './context/LocationContext';
 import CarSelectionModal from './components/CarSelectionModal';
 
 function App() {
   return (
-    <LocationProvider>
-      <CarSelectionProvider>
-        <Router>
-          <AppContent />
-          <CarSelectionModal />
-        </Router>
-      </CarSelectionProvider>
-    </LocationProvider>
+    <CarSelectionProvider>
+      <Router>
+        <AppContent />
+        <CarSelectionModal />
+      </Router>
+    </CarSelectionProvider>
   );
 }
 

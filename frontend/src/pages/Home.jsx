@@ -1,30 +1,25 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
-import { ArrowRight, MousePointer2, CheckCircle, Star, Users, Trophy, Clock, MapPin } from 'lucide-react';
 import { useCarSelection } from '../context/CarSelectionContext';
-import { useLocationContext } from '../context/LocationContext';
+
 import ServiceSlider from '../components/ServiceSlider';
 
 const Home = () => {
     const { openCarModal, selectedModel } = useCarSelection();
-    const { city, openLocationModal } = useLocationContext();
 
-    // Auto-trigger flow on mount
+    // Auto-trigger car modal if no model selected
     useEffect(() => {
-        if (!city) {
-            openLocationModal();
-        } else if (!selectedModel) {
-            openCarModal();
+        if (!selectedModel) {
+            const timer = setTimeout(() => {
+                openCarModal();
+            }, 1000);
+            return () => clearTimeout(timer);
         }
-    }, [city, selectedModel, openLocationModal, openCarModal]);
+    }, [selectedModel, openCarModal]);
 
     const handleGetStarted = () => {
-        if (!city) {
-            openLocationModal();
-        } else {
-            openCarModal();
-        }
+        openCarModal();
     };
 
     return (
@@ -37,8 +32,6 @@ const Home = () => {
                         src="https://images.unsplash.com/photo-1601362840469-51e4d8d58785?auto=format&fit=crop&q=80&w=2000"
                         alt="Car Detailing"
                         className="w-full h-full object-cover"
-                        // Hero image should NOT differ; use eager (default) or high priority if supported, 
-                        // but since user asked for overall speed, explicitly setting eager is good practice for LCP.
                         loading="eager"
                         fetchPriority="high"
                     />

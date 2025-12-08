@@ -14,7 +14,6 @@ const Booking = () => {
     const [settings, setSettings] = useState({});
     const [services, setServices] = useState([]);
     const [bookedSlots, setBookedSlots] = useState([]);
-    const [loadingLocation, setLoadingLocation] = useState(false);
 
     const [formData, setFormData] = useState({
         // Service
@@ -22,21 +21,18 @@ const Booking = () => {
         serviceName: location.state?.service?.title || '',
         basePrice: location.state?.service?.price || 0,
 
-        // Car
-
-
         // Personal
         name: '',
         email: '',
         phone: '',
 
         // Schedule
-        date: null,
+        date: '',
         timeSlot: '',
 
         // Address
         address: '',
-        city: '',
+        city: 'Surat', // Default city
         zip: '',
 
         // Payment
@@ -119,45 +115,6 @@ const Booking = () => {
         }
     };
 
-    const handleAutoFetchAddress = () => {
-        if (!navigator.geolocation) {
-            alert("Geolocation is not supported by this browser.");
-            return;
-        }
-
-        setLoadingLocation(true);
-        navigator.geolocation.getCurrentPosition(async (position) => {
-            try {
-                const { latitude, longitude } = position.coords;
-                // Using LocationIQ API
-                // Note: You need to sign up at locationiq.com to get a free API key
-                const apiKey = "pk.9a3e426559f004a966f02ceb9752e9af"; // Free tier demo key or ask user to replace
-                const res = await axios.get(`https://us1.locationiq.com/v1/reverse?key=${apiKey}&lat=${latitude}&lon=${longitude}&format=json`);
-
-                const address = res.data.address;
-                setFormData(prev => ({
-                    ...prev,
-                    address: res.data.display_name,
-                    city: address.city || address.town || address.village || address.state_district || '',
-                    zip: address.postcode || ''
-                }));
-            } catch (error) {
-                console.error("Error fetching address:", error);
-                alert("Could not fetch address. Please check your internet connection or API limit.");
-            } finally {
-                setLoadingLocation(false);
-            }
-        }, (error) => {
-            console.error("Geolocation error:", error);
-            setLoadingLocation(false);
-            alert("Location access denied. Please enable location services.");
-        }, {
-            enableHighAccuracy: true,
-            timeout: 10000,
-            maximumAge: 0
-        });
-    };
-
     const [errors, setErrors] = useState({});
 
     const validateForm = () => {
@@ -165,8 +122,6 @@ const Booking = () => {
         const phoneRegex = /^\d{10}$/;
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         const zipRegex = /^\d{6}$/;
-
-        if (!formData.serviceId) newErrors.serviceId = "Please select a service";
 
         if (!formData.serviceId) newErrors.serviceId = "Please select a service";
         if (!formData.name.trim()) newErrors.name = "Full Name is required";
@@ -199,7 +154,6 @@ const Booking = () => {
         e.preventDefault();
 
         if (!validateForm()) {
-            // Scroll to top or first error could be added here
             return;
         }
 
@@ -243,7 +197,7 @@ const Booking = () => {
                 });
 
                 const options = {
-                    key: "rzp_test_Rn58DGpaayS7uR",
+                    key: "rzp_test_Rn58DGpaayS7uR", // Replace with real key in production or env
                     amount: orderRes.data.amount,
                     currency: orderRes.data.currency,
                     name: "GLO CAR",
@@ -333,7 +287,6 @@ const Booking = () => {
                                     <button type="button" onClick={openCarModal} className="text-xs text-primary hover:underline px-2 py-1">Change</button>
                                 </div>
                             </div>
-
                         </div>
                     </section>
 
@@ -415,18 +368,6 @@ const Booking = () => {
                     <section>
                         <div className="flex justify-between items-center mb-3 md:mb-4">
                             <h2 className="text-lg md:text-xl font-bold flex items-center text-primary"><MapPin className="mr-2 h-5 w-5" /> Address</h2>
-                            <button
-                                type="button"
-                                disabled={loadingLocation}
-                                onClick={handleAutoFetchAddress}
-                                className="text-xs md:text-sm text-primary hover:underline flex items-center bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 transition-colors disabled:opacity-50"
-                            >
-                                {loadingLocation ? (
-                                    <span className="flex items-center"><div className="animate-spin rounded-full h-3 w-3 border-t-2 border-b-2 border-primary mr-2"></div> Fetching Address...</span>
-                                ) : (
-                                    <span className="flex items-center"><MapPin className="h-3 w-3 mr-1" /> Use Current Location</span>
-                                )}
-                            </button>
                         </div>
                         <div>
                             <textarea
@@ -446,9 +387,9 @@ const Booking = () => {
                                     placeholder="City"
                                     value={formData.city}
                                     onChange={handleChange}
-                                    className={`w-full bg-darker border rounded-xl p-3 md:p-4 text-white focus:outline-none text-base ${errors.city ? 'border-red-500' : 'border-gray-700 focus:border-primary'}`}
+                                    disabled
+                                    className={`w-full bg-darker border border-gray-700 rounded-xl p-3 md:p-4 text-gray-400 cursor-not-allowed text-base`}
                                 />
-                                {errors.city && <p className="text-red-500 text-xs mt-1">{errors.city}</p>}
                             </div>
                             <div>
                                 <input

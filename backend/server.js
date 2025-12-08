@@ -29,14 +29,13 @@ mongoose.connect(process.env.MONGO_URI)
 // Routes
 const serviceRoutes = require('./routes/serviceRoutes');
 const orderRoutes = require('./routes/orderRoutes');
-const locationRoutes = require('./routes/locationRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
 const carRoutes = require('./routes/carRoutes');
 
 app.use('/api/services', serviceRoutes);
 app.use('/api/orders', orderRoutes);
-app.use('/api/locations', locationRoutes);
+// app.use('/api/locations', locationRoutes); // Removed
 app.use('/api/admin', adminRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/cars', carRoutes);

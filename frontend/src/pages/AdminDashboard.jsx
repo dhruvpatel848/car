@@ -409,7 +409,8 @@ const CarsPanel = () => {
 // --- SERVICES PANEL ---
 const ServicesPanel = () => {
     const [services, setServices] = useState([]);
-    const [locations, setLocations] = useState([]);
+
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingService, setEditingService] = useState(null);
     const [formData, setFormData] = useState({
@@ -419,7 +420,7 @@ const ServicesPanel = () => {
         duration: '',
         features: '',
         image: null,
-        availableLocations: [],
+        image: null,
         pricingRules: {}
     });
     const [previewImage, setPreviewImage] = useState('');
@@ -433,7 +434,6 @@ const ServicesPanel = () => {
 
     useEffect(() => {
         fetchServices();
-        fetchLocations();
     }, []);
 
     const fetchServices = async () => {
@@ -446,15 +446,7 @@ const ServicesPanel = () => {
         }
     };
 
-    const fetchLocations = async () => {
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
-            const res = await axios.get(`${API_URL}/api/locations`);
-            setLocations(res.data);
-        } catch (err) {
-            console.error(err);
-        }
-    };
+
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -468,7 +460,6 @@ const ServicesPanel = () => {
             data.append('price', Number(formData.price));
             data.append('duration', formData.duration);
             data.append('features', formData.features);
-            data.append('availableLocations', JSON.stringify(formData.availableLocations));
             data.append('pricingRules', JSON.stringify(formData.pricingRules));
 
             if (formData.image instanceof File) {
@@ -488,7 +479,7 @@ const ServicesPanel = () => {
             }
             setIsModalOpen(false);
             setEditingService(null);
-            setFormData({ title: '', description: '', price: '', duration: '', features: '', image: null, availableLocations: [], pricingRules: {} });
+            setFormData({ title: '', description: '', price: '', duration: '', features: '', image: null, pricingRules: {} });
             setPreviewImage('');
             fetchServices();
         } catch (err) {
@@ -517,23 +508,15 @@ const ServicesPanel = () => {
             duration: service.duration || '45 mins',
             features: service.features.join(', '),
             image: service.image,
-            availableLocations: service.availableLocations.map(loc => typeof loc === 'object' ? loc.city : loc),
+            features: service.features.join(', '),
+            image: service.image,
             pricingRules: service.pricingRules || {}
         });
         setPreviewImage(service.image);
         setIsModalOpen(true);
     };
 
-    const toggleLocation = (city) => {
-        setFormData(prev => {
-            const current = prev.availableLocations;
-            if (current.includes(city)) {
-                return { ...prev, availableLocations: current.filter(c => c !== city) };
-            } else {
-                return { ...prev, availableLocations: [...current, city] };
-            }
-        });
-    };
+
 
     const handlePricingRuleChange = (segment, price) => {
         setFormData(prev => ({
@@ -552,7 +535,7 @@ const ServicesPanel = () => {
                 <button
                     onClick={() => {
                         setEditingService(null);
-                        setFormData({ title: '', description: '', price: '', duration: '', features: '', image: null, availableLocations: [], pricingRules: {} });
+                        setFormData({ title: '', description: '', price: '', duration: '', features: '', image: null, pricingRules: {} });
                         setPreviewImage('');
                         setIsModalOpen(true);
                     }}
@@ -618,21 +601,7 @@ const ServicesPanel = () => {
                             <textarea placeholder="Description" value={formData.description} onChange={e => setFormData({ ...formData, description: e.target.value })} className="w-full bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" rows="3" required />
                             <input placeholder="Features (comma separated)" value={formData.features} onChange={e => setFormData({ ...formData, features: e.target.value })} className="w-full bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none" required />
 
-                            <div>
-                                <label className="block text-gray-400 text-sm mb-2">Available Locations</label>
-                                <div className="flex flex-wrap gap-2">
-                                    {locations.map(loc => (
-                                        <button
-                                            key={loc._id}
-                                            type="button"
-                                            onClick={() => toggleLocation(loc.city)}
-                                            className={`px-3 py-1 rounded-full text-sm border transition-colors ${formData.availableLocations.includes(loc.city) ? 'bg-primary border-primary text-white' : 'bg-darker border-gray-700 text-gray-400 hover:border-gray-500'}`}
-                                        >
-                                            {loc.city}
-                                        </button>
-                                    ))}
-                                </div>
-                            </div>
+
 
                             <div className="border-t border-gray-700 pt-4 mt-4">
                                 <label className="block text-gray-400 text-sm mb-4 font-bold">Segment Pricing Rules (Overrides Base Price)</label>
@@ -749,86 +718,7 @@ const PricingPanel = () => {
     );
 };
 
-// --- LOCATIONS PANEL ---
-const LocationsPanel = () => {
-    const [locations, setLocations] = useState([]);
-    const [newCity, setNewCity] = useState('');
 
-    useEffect(() => {
-        fetchLocations();
-    }, []);
-
-    const fetchLocations = async () => {
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
-            const res = await axios.get(`${API_URL}/api/locations`);
-            setLocations(res.data);
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    const handleAdd = async (e) => {
-        e.preventDefault();
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
-            await axios.post(`${API_URL}/api/locations`, { city: newCity });
-            setNewCity('');
-            fetchLocations();
-        } catch (err) {
-            console.error(err);
-            alert('Failed to add location');
-        }
-    };
-
-    const handleDelete = async (id) => {
-        if (!window.confirm('Are you sure?')) return;
-        try {
-            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
-            await axios.delete(`${API_URL}/api/locations/${id}`);
-            fetchLocations();
-        } catch (err) {
-            console.error(err);
-        }
-    };
-
-    return (
-        <div>
-            <h2 className="text-2xl font-bold text-white font-heading mb-8">Locations</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div className="bg-dark rounded-2xl border border-gray-800 p-6 h-fit">
-                    <h3 className="text-lg font-bold text-white mb-4">Add New Location</h3>
-                    <form onSubmit={handleAdd} className="flex gap-4">
-                        <input
-                            value={newCity}
-                            onChange={(e) => setNewCity(e.target.value)}
-                            placeholder="City Name"
-                            className="flex-1 bg-darker border border-gray-700 rounded-xl p-3 text-white focus:border-primary focus:outline-none"
-                            required
-                        />
-                        <button type="submit" className="bg-primary hover:bg-blue-600 text-white px-6 rounded-xl font-bold transition-colors">
-                            Add
-                        </button>
-                    </form>
-                </div>
-
-                <div className="space-y-4">
-                    {locations.map(loc => (
-                        <div key={loc._id} className="bg-dark rounded-xl border border-gray-800 p-4 flex justify-between items-center">
-                            <div className="flex items-center">
-                                <MapPin className="h-5 w-5 text-primary mr-3" />
-                                <span className="font-medium text-white">{loc.city}</span>
-                            </div>
-                            <button onClick={() => handleDelete(loc._id)} className="text-red-500 hover:text-red-400 p-2 hover:bg-red-500/10 rounded-lg transition-colors">
-                                <Trash2 className="h-5 w-5" />
-                            </button>
-                        </div>
-                    ))}
-                </div>
-            </div>
-        </div>
-    );
-};
 
 // --- MAIN DASHBOARD COMPONENT ---
 const AdminDashboard = () => {
@@ -933,7 +823,7 @@ const AdminDashboard = () => {
                         <SidebarItem icon={LayoutDashboard} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => handleTabChange('dashboard')} />
                         <SidebarItem icon={ShoppingBag} label="Orders" active={activeTab === 'orders'} onClick={() => handleTabChange('orders')} />
                         <SidebarItem icon={Settings} label="Services" active={activeTab === 'services'} onClick={() => handleTabChange('services')} />
-                        <SidebarItem icon={MapPin} label="Locations" active={activeTab === 'locations'} onClick={() => handleTabChange('locations')} />
+
                         <SidebarItem icon={Banknote} label="Pricing" active={activeTab === 'pricing'} onClick={() => handleTabChange('pricing')} />
                         <SidebarItem icon={Car} label="Cars" active={activeTab === 'cars'} onClick={() => handleTabChange('cars')} />
                     </nav>
@@ -1044,7 +934,7 @@ const AdminDashboard = () => {
                     )}
                     {activeTab === 'orders' && <OrdersPanel />}
                     {activeTab === 'services' && <ServicesPanel />}
-                    {activeTab === 'locations' && <LocationsPanel />}
+
                     {activeTab === 'pricing' && <PricingPanel />}
                     {activeTab === 'cars' && <CarsPanel />}
                 </main>

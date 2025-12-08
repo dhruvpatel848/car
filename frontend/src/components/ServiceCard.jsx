@@ -65,10 +65,7 @@ const ServiceCard = ({ service, onBook }) => {
                 </div>
 
                 <div className="mt-auto">
-                    <div className="flex items-center text-xs text-gray-500 mb-6 uppercase tracking-wider font-medium">
-                        <MapPin className="h-3 w-3 mr-2" />
-                        {service.availableLocations.map(loc => typeof loc === 'object' ? loc.city : loc).join(', ')}
-                    </div>
+
 
                     <button
                         onClick={onBook}

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useLocationContext } from '../context/LocationContext';
 import { useCarSelection } from '../context/CarSelectionContext';
 import ServiceCard from '../components/ServiceCard';
 import { useNavigate } from 'react-router-dom';
@@ -9,51 +8,46 @@ import { motion } from 'framer-motion';
 const Services = () => {
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
-    const { city } = useLocationContext();
-    const { selectedModel, openCarModal } = useCarSelection(); // Use selectedModel
+    const { selectedModel, openCarModal } = useCarSelection();
     const navigate = useNavigate();
 
+    // Settings state
+    const [settings, setSettings] = useState({});
+
     useEffect(() => {
-        // Redirect to Home if no model is selected
+        // Redirect if no model selected
         if (!selectedModel) {
             navigate('/');
         }
     }, [selectedModel, navigate]);
 
+    // Fetch services and settings
     useEffect(() => {
-        const fetchData = async () => {
+        const fetchServicesAndSettings = async () => {
             try {
                 const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
-                let url = `${API_URL}/api/services`;
-                if (city) {
-                    url += `?location=${city}&t=${Date.now()}`;
-                } else {
-                    url += `?t=${Date.now()}`;
+
+                // Fetch Settings
+                try {
+                    const settingsRes = await axios.get(`${API_URL}/api/settings`);
+                    setSettings(settingsRes.data || {});
+                } catch (err) {
+                    console.error("Error fetching settings:", err);
                 }
+
+                // Fetch Services
+                let url = `${API_URL}/api/services?t=${Date.now()}`;
+
                 const servicesRes = await axios.get(url);
                 setServices(servicesRes.data);
             } catch (err) {
-                console.error(err);
+                console.error("Error fetching services:", err);
             } finally {
                 setLoading(false);
             }
         };
-        fetchData();
-    }, [city]);
 
-    const [settings, setSettings] = useState({});
-
-    useEffect(() => {
-        const fetchSettings = async () => {
-            try {
-                const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
-                const res = await axios.get(`${API_URL}/api/settings`);
-                setSettings(res.data || {});
-            } catch (err) {
-                console.error(err);
-            }
-        };
-        fetchSettings();
+        fetchServicesAndSettings();
     }, []);
 
     const getDynamicPrice = (service) => {
@@ -103,7 +97,7 @@ const Services = () => {
                         <span className="text-primary font-bold tracking-[0.2em] uppercase text-sm mb-4 block font-heading">What We Do</span>
                         <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 font-heading">Our Services</h1>
                         <p className="text-gray-400 max-w-2xl mx-auto text-lg font-light">
-                            Showing services available in <span className="text-primary font-bold">{city || 'All Locations'}</span>
+                            Showing services available in <span className="text-primary font-bold">{'Surat' || 'All Locations'}</span>
                         </p>
                         {selectedModel && (
                             <motion.div

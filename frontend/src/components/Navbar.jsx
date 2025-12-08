@@ -2,8 +2,8 @@ import React, { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Menu, X, Search, MapPin, Calendar, Clock, Car } from 'lucide-react';
 import logo from '../assets/logo.png';
-import { useLocationContext } from '../context/LocationContext';
 import SlotCheckerModal from './SlotCheckerModal';
+
 import TrackOrderModal from './TrackOrderModal';
 
 import { useCarSelection } from '../context/CarSelectionContext';
@@ -14,7 +14,6 @@ const Navbar = () => {
     const [isSlotModalOpen, setIsSlotModalOpen] = useState(false);
     const [isTrackOrderOpen, setIsTrackOrderOpen] = useState(false);
     const location = useLocation();
-    const { city, openLocationModal } = useLocationContext();
     const { openCarModal, selectedModel, selectedBrand } = useCarSelection();
 
     const [isVisible, setIsVisible] = useState(true);
@@ -85,13 +84,7 @@ const Navbar = () => {
                                 Check Slots
                             </button>
 
-                            <button
-                                onClick={openLocationModal}
-                                className="flex items-center text-white hover:text-primary transition-colors text-sm font-medium"
-                            >
-                                <MapPin className="h-4 w-4 mr-1" />
-                                {city || 'Select City'}
-                            </button>
+
 
                             <button
                                 onClick={openCarModal}
@@ -144,15 +137,7 @@ const Navbar = () => {
                                 <Calendar className="h-5 w-5 mr-2" /> Check Slots
                             </button>
 
-                            <button
-                                onClick={() => {
-                                    setIsOpen(false);
-                                    openLocationModal();
-                                }}
-                                className="flex items-center text-white hover:text-primary font-medium"
-                            >
-                                <MapPin className="h-5 w-5 mr-2" /> {city || 'Select City'}
-                            </button>
+
 
                             <button
                                 onClick={() => {

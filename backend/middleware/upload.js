@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
     filename: function (req, file, cb) {
         // Get name from body (Services use 'title', Cars use 'name')
         // IMPORTANT: Frontend MUST append 'title'/'name' BEFORE 'image'/'logo' in FormData
-        const rawName = req.body.title || req.body.name || 'uploaded-image';
+        const rawName = req.body.title || req.body.name || 'image';
 
         // Sanitize name: lowercase, remove special chars, replace spaces with hyphens
         const sanitized = rawName.toLowerCase().replace(/[^a-z0-9]/g, '-').replace(/-+/g, '-').replace(/^-|-$/g, '');
@@ -33,15 +33,8 @@ const storage = multer.diskStorage({
         // Get extension
         const ext = path.extname(file.originalname);
 
-        // Final filename: name + timestamp (to avoid browser caching issues if same name uploaded) + extension
-        // User asked for "same name", but adding a short timestamp is safer for updates. 
-        // Let's stick closer to "same name" but handle duplicates if needed.
-        // If we strictly follow "edit name as which is added by user as same name", 
-        // we might overwrite. Let's start with just the name-based filename.
-        // To prevent caching issues when "updating" the image for the same item, 
-        // we might need a timestamp or the frontend needs cache busting (which we added).
-
-        const filename = `${sanitized}${ext}`;
+        // Final filename: name + timestamp (to avoid browser caching issues and overwrites)
+        const filename = `${sanitized}-${Date.now()}${ext}`;
         cb(null, filename);
     }
 });
