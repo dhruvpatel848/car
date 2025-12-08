@@ -43,6 +43,33 @@ router.get('/slots', async (req, res) => {
     }
 });
 
+// Download CSV
+router.get('/csv', async (req, res) => {
+    try {
+        const { startDate, endDate } = req.query;
+        let query = {};
+        if (startDate && endDate) {
+            query.createdAt = {
+                $gte: new Date(startDate),
+                $lte: new Date(endDate)
+            };
+        }
+
+        const orders = await Order.find(query).lean();
+
+        const fields = ['orderId', 'customerName', 'customerPhone', 'serviceName', 'amount', 'status', 'paymentStatus', 'createdAt'];
+        const json2csvParser = new Parser({ fields });
+        const csv = json2csvParser.parse(orders);
+
+        res.header('Content-Type', 'text/csv');
+        res.attachment('orders.csv');
+        return res.send(csv);
+
+    } catch (err) {
+        res.status(500).json({ message: err.message });
+    }
+});
+
 // Create Razorpay Order
 router.post('/create-razorpay-order', async (req, res) => {
     try {
@@ -200,31 +227,6 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-// Download CSV
-router.get('/csv', async (req, res) => {
-    try {
-        const { startDate, endDate } = req.query;
-        let query = {};
-        if (startDate && endDate) {
-            query.createdAt = {
-                $gte: new Date(startDate),
-                $lte: new Date(endDate)
-            };
-        }
 
-        const orders = await Order.find(query).lean();
-
-        const fields = ['_id', 'customerName', 'customerEmail', 'serviceName', 'amount', 'status', 'createdAt'];
-        const json2csvParser = new Parser({ fields });
-        const csv = json2csvParser.parse(orders);
-
-        res.header('Content-Type', 'text/csv');
-        res.attachment('orders.csv');
-        return res.send(csv);
-
-    } catch (err) {
-        res.status(500).json({ message: err.message });
-    }
-});
 
 module.exports = router;
