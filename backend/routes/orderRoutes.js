@@ -57,7 +57,25 @@ router.get('/csv', async (req, res) => {
 
         const orders = await Order.find(query).lean();
 
-        const fields = ['orderId', 'customerName', 'customerPhone', 'serviceName', 'amount', 'status', 'paymentStatus', 'createdAt'];
+        const fields = [
+            'orderId',
+            'customerName',
+            'customerEmail',
+            'customerPhone',
+            'serviceName',
+            'amount',
+            'status',
+            'paymentStatus',
+            'paymentMethod',
+            'appointmentDate',
+            'appointmentTime',
+            'address',
+            'city',
+            'carDetails.make',
+            'carDetails.model',
+            'carDetails.type',
+            'createdAt'
+        ];
         const json2csvParser = new Parser({ fields });
         const csv = json2csvParser.parse(orders);
 
