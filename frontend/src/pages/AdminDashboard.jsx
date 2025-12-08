@@ -833,7 +833,7 @@ const LocationsPanel = () => {
 // --- MAIN DASHBOARD COMPONENT ---
 const AdminDashboard = () => {
     const [activeTab, setActiveTab] = useState('dashboard');
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Default closed on mobile
     const [stats, setStats] = useState({
         totalBookings: 0,
         totalRevenue: 0,
@@ -843,6 +843,23 @@ const AdminDashboard = () => {
         topLocations: []
     });
     const navigate = useNavigate();
+
+    // Close sidebar on route change or tab change if mobile
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 768) {
+                setIsSidebarOpen(true);
+            } else {
+                setIsSidebarOpen(false);
+            }
+        };
+
+        // Set initial
+        handleResize();
+
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     useEffect(() => {
         const token = localStorage.getItem('adminToken');
@@ -886,8 +903,23 @@ const AdminDashboard = () => {
         navigate('/admin/login');
     };
 
+    const handleTabChange = (tab) => {
+        setActiveTab(tab);
+        if (window.innerWidth < 768) {
+            setIsSidebarOpen(false);
+        }
+    };
+
     return (
-        <div className="min-h-screen bg-darker flex font-sans text-white">
+        <div className="min-h-screen bg-darker flex font-sans text-white relative">
+            {/* Mobile Overlay */}
+            {isSidebarOpen && (
+                <div
+                    className="fixed inset-0 bg-black/50 z-40 md:hidden backdrop-blur-sm"
+                    onClick={() => setIsSidebarOpen(false)}
+                />
+            )}
+
             {/* Sidebar */}
             <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-dark border-r border-gray-800 transition-transform duration-300 ease-in-out ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:relative md:translate-x-0`}>
                 <div className="h-full flex flex-col">
@@ -898,12 +930,12 @@ const AdminDashboard = () => {
 
                     {/* Navigation */}
                     <nav className="flex-1 p-4 space-y-2 overflow-y-auto">
-                        <SidebarItem icon={LayoutDashboard} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => setActiveTab('dashboard')} />
-                        <SidebarItem icon={ShoppingBag} label="Orders" active={activeTab === 'orders'} onClick={() => setActiveTab('orders')} />
-                        <SidebarItem icon={Settings} label="Services" active={activeTab === 'services'} onClick={() => setActiveTab('services')} />
-                        <SidebarItem icon={MapPin} label="Locations" active={activeTab === 'locations'} onClick={() => setActiveTab('locations')} />
-                        <SidebarItem icon={Banknote} label="Pricing" active={activeTab === 'pricing'} onClick={() => setActiveTab('pricing')} />
-                        <SidebarItem icon={Car} label="Cars" active={activeTab === 'cars'} onClick={() => setActiveTab('cars')} />
+                        <SidebarItem icon={LayoutDashboard} label="Dashboard" active={activeTab === 'dashboard'} onClick={() => handleTabChange('dashboard')} />
+                        <SidebarItem icon={ShoppingBag} label="Orders" active={activeTab === 'orders'} onClick={() => handleTabChange('orders')} />
+                        <SidebarItem icon={Settings} label="Services" active={activeTab === 'services'} onClick={() => handleTabChange('services')} />
+                        <SidebarItem icon={MapPin} label="Locations" active={activeTab === 'locations'} onClick={() => handleTabChange('locations')} />
+                        <SidebarItem icon={Banknote} label="Pricing" active={activeTab === 'pricing'} onClick={() => handleTabChange('pricing')} />
+                        <SidebarItem icon={Car} label="Cars" active={activeTab === 'cars'} onClick={() => handleTabChange('cars')} />
                     </nav>
 
                     {/* User Profile & Logout */}
