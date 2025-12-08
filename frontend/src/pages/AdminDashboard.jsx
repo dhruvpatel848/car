@@ -1123,18 +1123,19 @@ const OrdersPanel = () => {
 
     return (
         <div>
-            <div className="flex justify-between items-center mb-8">
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
                 <h2 className="text-2xl font-bold text-white font-heading">Orders</h2>
-                <div className="flex space-x-4">
-                    <input type="date" onChange={(e) => setStartDate(e.target.value)} className="bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white text-sm" />
-                    <input type="date" onChange={(e) => setEndDate(e.target.value)} className="bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white text-sm" />
-                    <button onClick={downloadCSV} className="flex items-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-medium">
+                <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 w-full md:w-auto">
+                    <input type="date" onChange={(e) => setStartDate(e.target.value)} className="bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white text-sm w-full sm:w-auto" />
+                    <input type="date" onChange={(e) => setEndDate(e.target.value)} className="bg-dark border border-gray-700 rounded-lg px-3 py-2 text-white text-sm w-full sm:w-auto" />
+                    <button onClick={downloadCSV} className="flex items-center justify-center bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 text-sm font-medium w-full sm:w-auto">
                         <Download className="h-4 w-4 mr-2" /> CSV
                     </button>
                 </div>
             </div>
 
-            <div className="bg-dark rounded-2xl border border-gray-800 overflow-hidden shadow-xl">
+            {/* Desktop Table View */}
+            <div className="hidden md:block bg-dark rounded-2xl border border-gray-800 overflow-hidden shadow-xl">
                 <table className="w-full text-left">
                     <thead className="bg-gray-800/50 text-gray-400 text-xs uppercase tracking-wider">
                         <tr>
@@ -1213,6 +1214,64 @@ const OrdersPanel = () => {
                         )}
                     </tbody>
                 </table>
+            </div>
+
+            {/* Mobile Card View */}
+            <div className="md:hidden space-y-4">
+                {Array.isArray(orders) && orders.length > 0 ? (
+                    orders.map(order => (
+                        <div key={order._id} className="bg-dark rounded-xl border border-gray-800 p-4 space-y-3">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <span className="font-mono text-xs text-gray-500">#{order.orderId}</span>
+                                    <h4 className="font-bold text-white text-lg">{order.serviceName}</h4>
+                                    <p className="text-primary font-bold">₹{order.amount}</p>
+                                </div>
+                                <span className={`px-2 py-1 rounded text-[10px] uppercase font-bold ${order.status === 'Completed' ? 'bg-green-500/20 text-green-500' :
+                                    order.status === 'Pending' ? 'bg-yellow-500/20 text-yellow-500' :
+                                        'bg-blue-500/20 text-blue-500'
+                                    }`}>
+                                    {order.status}
+                                </span>
+                            </div>
+
+                            <div className="text-sm text-gray-400 border-t border-gray-800 pt-3">
+                                <p><span className="text-gray-500">Customer:</span> <span className="text-white">{order.customerName}</span></p>
+                                <p><span className="text-gray-500">Phone:</span> {order.customerPhone}</p>
+                                <div className="flex items-center space-x-2 mt-1">
+                                    <span className="text-gray-500">Payment:</span>
+                                    <span className={`text-xs uppercase ${order.paymentStatus === 'Paid' ? 'text-green-500' : 'text-yellow-500'}`}>
+                                        {order.paymentStatus} ({order.paymentMethod})
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div className="flex space-x-2 pt-2">
+                                <button
+                                    onClick={() => setSelectedOrder(order)}
+                                    className="flex-1 bg-gray-700/50 hover:bg-gray-700 text-white py-2 rounded-lg text-sm transition-colors flex items-center justify-center"
+                                >
+                                    <Eye className="h-4 w-4 mr-2" /> View
+                                </button>
+                                <div className="flex-1 relative">
+                                    <select
+                                        value={order.status}
+                                        onChange={(e) => updateStatus(order._id, e.target.value)}
+                                        className="w-full bg-darker border border-gray-700 rounded-lg px-3 py-2 text-sm text-white focus:outline-none appearance-none cursor-pointer"
+                                    >
+                                        <option value="Pending">Pending</option>
+                                        <option value="Confirmed">Confirmed</option>
+                                        <option value="Completed">Completed</option>
+                                        <option value="Cancelled">Cancelled</option>
+                                    </select>
+                                    <ChevronDown className="h-4 w-4 absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 pointer-events-none" />
+                                </div>
+                            </div>
+                        </div>
+                    ))
+                ) : (
+                    <div className="text-center py-8 text-gray-500">No orders found.</div>
+                )}
             </div>
 
             {/* Order Details Modal */}
