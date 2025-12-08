@@ -106,13 +106,98 @@ const Booking = () => {
         const service = services.find(s => s._id === e.target.value);
         if (service) {
             const finalPrice = getDynamicPrice(service);
-            setFormData({
-                ...formData,
+            setFormData(prev => ({
+                ...prev,
                 serviceId: service._id,
                 serviceName: service.title,
                 basePrice: finalPrice
-            });
+            }));
         }
+    };
+
+    const handleDetectLocation = () => {
+        if (!navigator.geolocation) {
+            setError("Geolocation is not supported by your browser");
+            return;
+        }
+
+        const apiKey = import.meta.env.VITE_GOOGLE_MAPS_API_KEY;
+        if (!apiKey) {
+            setError("Google Maps API Key is missing");
+            return;
+        }
+
+        setLoading(true);
+        navigator.geolocation.getCurrentPosition(
+            async (position) => {
+                try {
+                    const { latitude, longitude } = position.coords;
+                    const response = await axios.get(
+                        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${latitude},${longitude}&key=${apiKey}`
+                    );
+
+                    // Check for API-level errors even if status is 200
+                    if (response.data.status !== 'OK') {
+                        let errorMessage = "Failed to fetch address.";
+                        if (response.data.error_message) {
+                            errorMessage = `Google Maps Error: ${response.data.error_message}`;
+                        } else if (response.data.status === 'ZERO_RESULTS') {
+                            errorMessage = "No address found for this location.";
+                        } else if (response.data.status === 'REQUEST_DENIED') {
+                            errorMessage = "Google Maps API Request Denied. Check API Key.";
+                        } else if (response.data.status === 'OVER_QUERY_LIMIT') {
+                            errorMessage = "Google Maps API Quota Exceeded.";
+                        }
+                        setError(errorMessage);
+                        console.error("Google Maps API Error:", response.data);
+                        return;
+                    }
+
+                    if (response.data.results.length > 0) {
+                        const addressComponents = response.data.results[0].address_components;
+                        const formattedAddress = response.data.results[0].formatted_address;
+
+                        let city = 'Surat'; // Default
+                        let zip = '';
+
+                        addressComponents.forEach(component => {
+                            if (component.types.includes('locality')) {
+                                city = component.long_name;
+                            }
+                            if (component.types.includes('postal_code')) {
+                                zip = component.long_name;
+                            }
+                        });
+
+                        setFormData(prev => ({
+                            ...prev,
+                            address: formattedAddress,
+                            city: city, // Fill detected city
+                            zip: zip
+                        }));
+
+                        // Optional: Check if detected city is Surat
+                        if (city.toLowerCase() !== 'surat') {
+                            setError("Note: We currently only serve in Surat. Your location appears to be outside Surat.");
+                        } else {
+                            setError('');
+                        }
+                    } else {
+                        setError("Unable to retrieve address from location");
+                    }
+                } catch (err) {
+                    console.error(err);
+                    setError("Failed to fetch address from Google Maps");
+                } finally {
+                    setLoading(false);
+                }
+            },
+            (err) => {
+                console.error(err);
+                setError("Unable to retrieve your location. Please allow location access.");
+                setLoading(false);
+            }
+        );
     };
 
     const [errors, setErrors] = useState({});
@@ -368,6 +453,13 @@ const Booking = () => {
                     <section>
                         <div className="flex justify-between items-center mb-3 md:mb-4">
                             <h2 className="text-lg md:text-xl font-bold flex items-center text-primary"><MapPin className="mr-2 h-5 w-5" /> Address</h2>
+                            <button
+                                type="button"
+                                onClick={handleDetectLocation}
+                                className="text-xs md:text-sm bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 px-3 py-1.5 rounded-lg transition-colors flex items-center"
+                            >
+                                <MapPin className="w-3 h-3 mr-1" /> Detect My Location
+                            </button>
                         </div>
                         <div>
                             <textarea
