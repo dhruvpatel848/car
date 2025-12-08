@@ -23,7 +23,7 @@ const Services = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
                 let url = `${API_URL}/api/services`;
                 if (city) {
                     url += `?location=${city}&t=${Date.now()}`;
@@ -46,7 +46,7 @@ const Services = () => {
     useEffect(() => {
         const fetchSettings = async () => {
             try {
-                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
                 const res = await axios.get(`${API_URL}/api/settings`);
                 setSettings(res.data || {});
             } catch (err) {

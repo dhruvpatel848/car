@@ -55,7 +55,7 @@ const Booking = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
 
                 // Fetch Settings
                 const settingsRes = await axios.get(`${API_URL}/api/settings`);
@@ -78,7 +78,7 @@ const Booking = () => {
         if (formData.date) {
             const fetchSlots = async () => {
                 try {
-                    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+                    const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
                     const res = await axios.get(`${API_URL}/api/orders/slots?date=${new Date(formData.date).toISOString()}`);
                     setBookedSlots(res.data);
                 } catch (err) {
@@ -207,7 +207,7 @@ const Booking = () => {
         setError('');
 
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const totalPrice = calculateTotal();
 
             const orderData = {

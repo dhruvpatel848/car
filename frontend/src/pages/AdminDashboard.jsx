@@ -40,7 +40,7 @@ const CarsPanel = () => {
     const fetchBrands = async () => {
         try {
             setLoading(true);
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.get(`${API_URL}/api/cars/brands?t=${Date.now()}`);
             setBrands(res.data);
         } catch (err) {
@@ -53,7 +53,7 @@ const CarsPanel = () => {
     const fetchModels = async (brandId) => {
         try {
             setLoading(true);
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.get(`${API_URL}/api/cars/models/${brandId}?t=${Date.now()}`);
             setModels(res.data);
         } catch (err) {
@@ -67,7 +67,7 @@ const CarsPanel = () => {
     const handleSaveBrand = async (e) => {
         e.preventDefault();
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const formData = new FormData();
             formData.append('name', newBrand.name);
             if (newBrand.logoFile) {
@@ -111,7 +111,7 @@ const CarsPanel = () => {
     const handleDeleteBrand = async (id) => {
         if (!window.confirm('Are you sure? This will delete all associated models.')) return;
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             await axios.delete(`${API_URL}/api/cars/brands/${id}`);
             fetchBrands();
         } catch (err) {
@@ -124,7 +124,7 @@ const CarsPanel = () => {
     const handleSaveModel = async (e) => {
         e.preventDefault();
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const formData = new FormData();
             formData.append('name', newModel.name);
             formData.append('brand', newModel.brand);
@@ -187,7 +187,7 @@ const CarsPanel = () => {
     const handleDeleteModel = async (id, brandId) => {
         if (!window.confirm('Are you sure?')) return;
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             await axios.delete(`${API_URL}/api/cars/models/${id}`);
             if (brandId) fetchModels(brandId);
             else if (newModel.brand) fetchModels(newModel.brand);
@@ -438,7 +438,7 @@ const ServicesPanel = () => {
 
     const fetchServices = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.get(`${API_URL}/api/services?t=${Date.now()}`);
             setServices(res.data);
         } catch (err) {
@@ -448,7 +448,7 @@ const ServicesPanel = () => {
 
     const fetchLocations = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.get(`${API_URL}/api/locations`);
             setLocations(res.data);
         } catch (err) {
@@ -459,7 +459,7 @@ const ServicesPanel = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
 
             const data = new FormData();
             data.append('title', formData.title);
@@ -500,7 +500,7 @@ const ServicesPanel = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure?')) return;
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             await axios.delete(`${API_URL}/api/services/${id}`);
             fetchServices();
         } catch (err) {
@@ -679,7 +679,7 @@ const PricingPanel = () => {
 
     const fetchSettings = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.get(`${API_URL}/api/settings`);
             if (res.data) {
                 setSettings(res.data);
@@ -697,7 +697,7 @@ const PricingPanel = () => {
         e.preventDefault();
         setLoading(true);
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             await axios.put(`${API_URL}/api/settings`, settings);
             alert('Pricing updated successfully');
         } catch (err) {
@@ -760,7 +760,7 @@ const LocationsPanel = () => {
 
     const fetchLocations = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.get(`${API_URL}/api/locations`);
             setLocations(res.data);
         } catch (err) {
@@ -771,7 +771,7 @@ const LocationsPanel = () => {
     const handleAdd = async (e) => {
         e.preventDefault();
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             await axios.post(`${API_URL}/api/locations`, { city: newCity });
             setNewCity('');
             fetchLocations();
@@ -784,7 +784,7 @@ const LocationsPanel = () => {
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure?')) return;
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             await axios.delete(`${API_URL}/api/locations/${id}`);
             fetchLocations();
         } catch (err) {
@@ -869,7 +869,7 @@ const AdminDashboard = () => {
 
     const fetchStats = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.get(`${API_URL}/api/orders`);
             const orders = Array.isArray(res.data) ? res.data : [];
 
@@ -1089,7 +1089,7 @@ const OrdersPanel = () => {
 
     const fetchOrders = async () => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.get(`${API_URL}/api/orders`);
             setOrders(Array.isArray(res.data) ? res.data : []);
         } catch (err) {
@@ -1100,7 +1100,7 @@ const OrdersPanel = () => {
 
     const updateStatus = async (id, status, adminNote) => {
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const payload = {};
             if (status) payload.status = status;
             if (adminNote !== undefined) payload.adminNote = adminNote;

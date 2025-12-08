@@ -12,7 +12,7 @@ const AdminLogin = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.post(`${API_URL}/api/admin/login`, { email, password });
             if (res.data.token) {
                 localStorage.setItem('adminToken', res.data.token);

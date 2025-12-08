@@ -27,7 +27,7 @@ const CarSelectionModal = () => {
     const fetchBrands = async () => {
         try {
             setLoading(true);
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.get(`${API_URL}/api/cars/brands`);
             setBrands(res.data);
         } catch (err) {
@@ -43,7 +43,7 @@ const CarSelectionModal = () => {
         setSearchTerm('');
         try {
             setLoading(true);
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.get(`${API_URL}/api/cars/models/${brand._id}`);
             setModels(res.data);
         } catch (err) {

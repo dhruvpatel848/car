@@ -22,7 +22,7 @@ const SlotCheckerModal = ({ isOpen, onClose }) => {
     const fetchSlots = async () => {
         setLoading(true);
         try {
-            const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+            const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com';
             const res = await axios.get(`${API_URL}/api/orders/slots?date=${new Date(date).toISOString()}`);
             setBookedSlots(res.data);
         } catch (err) {

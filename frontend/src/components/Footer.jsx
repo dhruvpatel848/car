@@ -10,7 +10,7 @@ const Footer = () => {
         const fetchServices = async () => {
             try {
                 // Determine API URL based on environment or default to localhost
-                const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+                const API_URL = import.meta.env.VITE_API_URL || 'https://car-9hr9.onrender.com/api';
                 const response = await fetch(`${API_URL}/services`);
                 const data = await response.json();
                 if (Array.isArray(data)) {

@@ -1,7 +1,7 @@
 const axios = require('axios');
 const fs = require('fs');
 
-const API_URL = 'http://localhost:5000/api';
+const API_URL = 'https://car-9hr9.onrender.com/api';
 const LOG_FILE = 'api_test_results.txt';
 
 function log(msg) {

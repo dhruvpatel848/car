@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-const API_URL = 'http://localhost:5000/api/services';
+const API_URL = 'https://car-9hr9.onrender.com/api/services';
 
 const serviceData = {
     title: "Premium Hand Wash",
