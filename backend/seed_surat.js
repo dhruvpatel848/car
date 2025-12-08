@@ -167,7 +167,7 @@ const seedDB = async () => {
             if (!b) return null;
 
             // Name-based image assignment
-            const imageName = m.name.toLowerCase().replace(/\s+/g, '-') + '.jpg';
+            const imageName = m.name.toLowerCase().replace(/\s+/g, '-') + '.png';
 
             return {
                 ...m,

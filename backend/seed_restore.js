@@ -22,37 +22,37 @@ const brandsList = [
 ];
 
 const modelsList = [
-    { name: 'Alto 800', brand: 'Maruti Suzuki', segment: 'Hatchback', image: 'alto.jpg' },
-    { name: 'Swift', brand: 'Maruti Suzuki', segment: 'Hatchback', image: 'swift.jpg' },
-    { name: 'Baleno', brand: 'Maruti Suzuki', segment: 'Premium Hatchback', image: 'baleno.jpg' },
-    { name: 'Dzire', brand: 'Maruti Suzuki', segment: 'Compact Sedan', image: 'dzire.jpg' },
-    { name: 'Brezza', brand: 'Maruti Suzuki', segment: 'Compact SUV', image: 'brezza.jpg' },
-    { name: 'Ciaz', brand: 'Maruti Suzuki', segment: 'Mid-size Sedan', image: 'ciaz.jpg' },
-    { name: 'Wagon R', brand: 'Maruti Suzuki', segment: 'Hatchback', image: 'wagonr.jpg' },
+    { name: 'Alto 800', brand: 'Maruti Suzuki', segment: 'Hatchback', image: 'alto.png' },
+    { name: 'Swift', brand: 'Maruti Suzuki', segment: 'Hatchback', image: 'swift.png' },
+    { name: 'Baleno', brand: 'Maruti Suzuki', segment: 'Premium Hatchback', image: 'baleno.png' },
+    { name: 'Dzire', brand: 'Maruti Suzuki', segment: 'Compact Sedan', image: 'dzire.png' },
+    { name: 'Brezza', brand: 'Maruti Suzuki', segment: 'Compact SUV', image: 'brezza.png' },
+    { name: 'Ciaz', brand: 'Maruti Suzuki', segment: 'Mid-size Sedan', image: 'ciaz.png' },
+    { name: 'Wagon R', brand: 'Maruti Suzuki', segment: 'Hatchback', image: 'wagonr.png' },
 
-    { name: 'i10 Nios', brand: 'Hyundai', segment: 'Hatchback', image: 'i10.jpg' },
-    { name: 'i20', brand: 'Hyundai', segment: 'Premium Hatchback', image: 'i20.jpg' },
-    { name: 'Aura', brand: 'Hyundai', segment: 'Compact Sedan', image: 'aura.jpg' },
-    { name: 'Verna', brand: 'Hyundai', segment: 'Mid-size Sedan', image: 'verna.jpg' },
-    { name: 'Creta', brand: 'Hyundai', segment: 'Mid-size SUV', image: 'creta.jpg' },
-    { name: 'Venue', brand: 'Hyundai', segment: 'Compact SUV', image: 'venue.jpg' },
+    { name: 'i10 Nios', brand: 'Hyundai', segment: 'Hatchback', image: 'i10.png' },
+    { name: 'i20', brand: 'Hyundai', segment: 'Premium Hatchback', image: 'i20.png' },
+    { name: 'Aura', brand: 'Hyundai', segment: 'Compact Sedan', image: 'aura.png' },
+    { name: 'Verna', brand: 'Hyundai', segment: 'Mid-size Sedan', image: 'verna.png' },
+    { name: 'Creta', brand: 'Hyundai', segment: 'Mid-size SUV', image: 'creta.png' },
+    { name: 'Venue', brand: 'Hyundai', segment: 'Compact SUV', image: 'venue.png' },
 
-    { name: 'City', brand: 'Honda', segment: 'Mid-size Sedan', image: 'city.jpg' },
-    { name: 'Amaze', brand: 'Honda', segment: 'Compact Sedan', image: 'amaze.jpg' },
-    { name: 'Jazz', brand: 'Honda', segment: 'Premium Hatchback', image: 'jazz.jpg' },
+    { name: 'City', brand: 'Honda', segment: 'Mid-size Sedan', image: 'city.png' },
+    { name: 'Amaze', brand: 'Honda', segment: 'Compact Sedan', image: 'amaze.png' },
+    { name: 'Jazz', brand: 'Honda', segment: 'Premium Hatchback', image: 'jazz.png' },
 
-    { name: 'Altroz', brand: 'Tata', segment: 'Premium Hatchback', image: 'altroz.jpg' },
-    { name: 'XUV700', brand: 'Mahindra', segment: 'Mid-size SUV', image: 'xuv700.jpg' },
+    { name: 'Altroz', brand: 'Tata', segment: 'Premium Hatchback', image: 'altroz.png' },
+    { name: 'XUV700', brand: 'Mahindra', segment: 'Mid-size SUV', image: 'xuv700.png' },
 
-    { name: 'Fortuner', brand: 'Toyota', segment: 'Full-size SUV', image: 'fortuner.jpg' },
-    { name: 'Camry', brand: 'Toyota', segment: 'Executive Sedan', image: 'camry.jpg' },
+    { name: 'Fortuner', brand: 'Toyota', segment: 'Full-size SUV', image: 'fortuner.png' },
+    { name: 'Camry', brand: 'Toyota', segment: 'Executive Sedan', image: 'camry.png' },
 
-    { name: 'C-Class', brand: 'Mercedes-Benz', segment: 'Luxury', image: 'c-class.jpg' },
-    { name: 'E-Class', brand: 'Mercedes-Benz', segment: 'Luxury', image: 'e-class.jpg' },
-    { name: 'A-Class', brand: 'Mercedes-Benz', segment: 'Luxury', image: 'a-class.jpg' },
+    { name: 'C-Class', brand: 'Mercedes-Benz', segment: 'Luxury', image: 'c-class.png' },
+    { name: 'E-Class', brand: 'Mercedes-Benz', segment: 'Luxury', image: 'e-class.png' },
+    { name: 'A-Class', brand: 'Mercedes-Benz', segment: 'Luxury', image: 'a-class.png' },
 
-    { name: '3 Series', brand: 'BMW', segment: 'Luxury', image: '3-series.jpg' },
-    { name: '5 Series', brand: 'BMW', segment: 'Luxury', image: '5-series.jpg' },
+    { name: '3 Series', brand: 'BMW', segment: 'Luxury', image: '3-series.png' },
+    { name: '5 Series', brand: 'BMW', segment: 'Luxury', image: '5-series.png' },
 ];
 
 const servicesList = [
@@ -63,7 +63,7 @@ const servicesList = [
         duration: "45 mins",
         features: ["Exterior Foam Wash", "Interior Vacuum", "Dashboard Polish", "Tyre Dressing"],
         pricingRules: { "Hatchback": 499, "SUV": 699, "Luxury": 999 },
-        image: "/images/models/swift.jpg"
+        image: "/images/models/swift.png"
     },
     {
         title: "Deep Interior Cleaning",
@@ -72,7 +72,7 @@ const servicesList = [
         duration: "2 hours",
         features: ["Seat Shampoo", "Roof Cleaning", "Carpet Scrubbing", "Odor Removal"],
         pricingRules: { "Hatchback": 1299, "SUV": 1599, "Luxury": 1999 },
-        image: "/images/models/altroz.jpg"
+        image: "/images/models/altroz.png"
     },
     {
         title: "Premium Polish",
@@ -81,7 +81,7 @@ const servicesList = [
         duration: "1.5 hours",
         features: ["Body Waxing", "Scratch Removal", "Headlight Restoration", "Chrome Polishing"],
         pricingRules: { "Hatchback": 899, "SUV": 1199, "Luxury": 1599 },
-        image: "/images/models/city.jpg"
+        image: "/images/models/city.png"
     },
     {
         title: "Ceramic Coating",
@@ -90,7 +90,7 @@ const servicesList = [
         duration: "4 hours",
         features: ["3-Layer Coating", "Hydrophobic Effect", "Gloss Enhancement", "1 Year Warranty"],
         pricingRules: { "Hatchback": 4999, "SUV": 5999, "Luxury": 7999 },
-        image: "/images/models/creta.jpg"
+        image: "/images/models/creta.png"
     },
     {
         title: "Full Detailing",
@@ -99,7 +99,7 @@ const servicesList = [
         duration: "5 hours",
         features: ["Wait & Polish", "Engine Bay Cleaning", "AC Vent Cleaning", "Leather Conditioning"],
         pricingRules: { "Hatchback": 2499, "SUV": 2999, "Luxury": 3999 },
-        image: "/images/models/fortuner.jpg"
+        image: "/images/models/fortuner.png"
     }
 ];
 
