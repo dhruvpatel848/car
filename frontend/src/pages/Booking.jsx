@@ -282,7 +282,7 @@ const Booking = () => {
                 });
 
                 const options = {
-                    key: "rzp_test_Rn58DGpaayS7uR", // Replace with real key in production or env
+                    key: import.meta.env.VITE_RAZORPAY_KEY_ID || "rzp_test_Rn58DGpaayS7uR",
                     amount: orderRes.data.amount,
                     currency: orderRes.data.currency,
                     name: "GLO CAR",
