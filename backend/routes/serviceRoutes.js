@@ -13,7 +13,8 @@ router.get('/', async (req, res) => {
 
 
         const services = await Service.find(query);
-        // Removed Cache-Control to ensure fresh data after updates
+        // Cache for 5 minutes to reduce database load
+        res.set('Cache-Control', 'public, max-age=300');
         res.json(services);
     } catch (err) {
         res.status(500).json({ message: err.message });

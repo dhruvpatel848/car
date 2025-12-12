@@ -41,6 +41,15 @@ app.use('/api/settings', settingsRoutes);
 app.use('/api/cars', carRoutes);
 app.use('/api/images', require('./routes/imageRoutes')); // NEW
 
+// Health check endpoint for monitoring/keep-alive services
+app.get('/api/health', (req, res) => {
+    res.status(200).json({
+        status: 'healthy',
+        timestamp: new Date().toISOString(),
+        uptime: process.uptime()
+    });
+});
+
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
     console.log('SERVER_ID: ' + Date.now());

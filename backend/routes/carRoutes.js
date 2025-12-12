@@ -11,6 +11,8 @@ const upload = require('../middleware/upload');
 router.get('/brands', async (req, res) => {
     try {
         const brands = await CarBrand.find().sort({ name: 1 });
+        // Cache for 10 minutes - car brands rarely change
+        res.set('Cache-Control', 'public, max-age=600');
         res.json(brands);
     } catch (err) {
         res.status(500).json({ message: err.message });
@@ -65,6 +67,8 @@ router.delete('/brands/:id', async (req, res) => {
 router.get('/models/:brandId', async (req, res) => {
     try {
         const models = await CarModel.find({ brand: req.params.brandId }).sort({ name: 1 });
+        // Cache for 10 minutes - car models rarely change
+        res.set('Cache-Control', 'public, max-age=600');
         res.json(models);
     } catch (err) {
         res.status(500).json({ message: err.message });
